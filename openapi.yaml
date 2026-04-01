@@ -1,0 +1,491 @@
+openapi: 3.1.0
+info:
+  title: payconnectoid API
+  version: 0.1.0
+  description: Payment orchestration API contract used for MCP tooling and SDK generation.
+servers:
+  - url: http://127.0.0.1:4106
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      responses:
+        '200':
+          description: Application is healthy
+  /api/ready:
+    get:
+      summary: Readiness check
+      responses:
+        '200':
+          description: Application is ready
+  /api/auth/login:
+    post:
+      summary: Login and issue access tokens
+      responses:
+        '200':
+          description: Login succeeded
+  /api/v2/openapi.json:
+    get:
+      summary: Fetch the OpenAPI contract
+      responses:
+        '200':
+          description: OpenAPI document
+  /api/v2/payments:
+    get:
+      summary: List payments
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: currency
+          schema:
+            type: string
+        - in: query
+          name: providerId
+          schema:
+            type: string
+        - in: query
+          name: recipientRef
+          schema:
+            type: string
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [createdAt, amountMinor, currency, status, providerId]
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+      responses:
+        '200':
+          description: Payment list
+    post:
+      summary: Create payment
+      responses:
+        '201':
+          description: Payment created
+  /api/v2/payments/{paymentId}:
+    get:
+      summary: Get a single payment
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment found
+    patch:
+      summary: Update payment status
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Payment updated
+  /api/v2/payments/{paymentId}/verify:
+    post:
+      summary: Verify a payment with its provider adapter
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Verification completed
+  /api/v2/payments/{paymentId}/refund:
+    post:
+      summary: Refund a payment with its provider adapter
+      parameters:
+        - in: path
+          name: paymentId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Refund created
+  /api/v2/refunds:
+    get:
+      summary: List refunds
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            minimum: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 100
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: providerId
+          schema:
+            type: string
+        - in: query
+          name: paymentId
+          schema:
+            type: string
+        - in: query
+          name: currency
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Refund list
+  /api/v2/analytics/refunds:
+    get:
+      summary: Fetch refund analytics
+      parameters:
+        - in: query
+          name: window
+          schema:
+            type: string
+        - in: query
+          name: bucket
+          schema:
+            type: string
+        - in: query
+          name: from
+          schema:
+            type: string
+        - in: query
+          name: to
+          schema:
+            type: string
+        - in: query
+          name: providerId
+          schema:
+            type: string
+        - in: query
+          name: currency
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Refund analytics
+  /api/v2/analytics/webhook-deliveries:
+    get:
+      summary: Fetch webhook delivery analytics
+      parameters:
+        - in: query
+          name: window
+          schema:
+            type: string
+        - in: query
+          name: bucket
+          schema:
+            type: string
+        - in: query
+          name: from
+          schema:
+            type: string
+        - in: query
+          name: to
+          schema:
+            type: string
+        - in: query
+          name: status
+          schema:
+            type: string
+        - in: query
+          name: event
+          schema:
+            type: string
+        - in: query
+          name: subscriptionId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook delivery analytics
+  /api/mcp:
+    post:
+      summary: Send a JSON-RPC MCP request over HTTP
+      responses:
+        '200':
+          description: MCP JSON-RPC response
+  /api/mcp/sse:
+    get:
+      summary: Open an MCP SSE session
+      responses:
+        '200':
+          description: MCP SSE session established
+  /api/mcp/messages/{sessionId}:
+    post:
+      summary: Send a JSON-RPC MCP request to an active SSE session
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: MCP message acknowledged
+  /api/mcp/sessions/{sessionId}:
+    delete:
+      summary: Close an active MCP SSE session
+      parameters:
+        - in: path
+          name: sessionId
+          required: true
+          schema:
+            type: string
+      responses:
+        '204':
+          description: Session closed
+        '404':
+          description: Session not found
+  /api/v2/webhook-dead-letters:
+    get:
+      summary: List dead-lettered webhook jobs
+      parameters:
+        - in: query
+          name: subscriptionId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dead-letter list
+  /api/v2/webhook-dead-letters/{deadLetterId}/requeue:
+    post:
+      summary: Requeue a dead-lettered webhook job
+      parameters:
+        - in: path
+          name: deadLetterId
+          required: true
+          schema:
+            type: string
+      responses:
+        '202':
+          description: Dead letter requeued
+        '404':
+          description: Dead letter not found
+  /api/v2/webhook-dead-letters/{deadLetterId}:
+    delete:
+      summary: Discard a dead-lettered webhook job
+      parameters:
+        - in: path
+          name: deadLetterId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Dead letter discarded
+        '404':
+          description: Dead letter not found
+  /api/v2/providers:
+    get:
+      summary: List providers
+      responses:
+        '200':
+          description: Provider list
+    post:
+      summary: Create provider
+      responses:
+        '201':
+          description: Provider created
+  /api/v2/providers/{providerId}:
+    patch:
+      summary: Update a provider
+      parameters:
+        - in: path
+          name: providerId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Provider updated
+    delete:
+      summary: Soft delete a provider
+      parameters:
+        - in: path
+          name: providerId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Provider marked inactive
+  /api/v2/mismatches:
+    get:
+      summary: List mismatches
+      responses:
+        '200':
+          description: Mismatch list
+    post:
+      summary: Create mismatch
+      responses:
+        '201':
+          description: Mismatch created
+  /api/v2/reconciliation:
+    get:
+      summary: Fetch reconciliation summary
+      responses:
+        '200':
+          description: Reconciliation summary
+  /api/v2/webhook:
+    post:
+      summary: Receive provider webhook
+      responses:
+        '200':
+          description: Webhook accepted
+  /api/v2/webhook-subscriptions:
+    get:
+      summary: List outbound webhook subscriptions
+      responses:
+        '200':
+          description: Webhook subscriptions
+    post:
+      summary: Create an outbound webhook subscription
+      responses:
+        '201':
+          description: Webhook subscription created
+  /api/v2/webhook-subscriptions/{subscriptionId}:
+    patch:
+      summary: Update an outbound webhook subscription
+      parameters:
+        - in: path
+          name: subscriptionId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook subscription updated
+    delete:
+      summary: Disable an outbound webhook subscription
+      parameters:
+        - in: path
+          name: subscriptionId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook subscription disabled
+  /api/v2/webhook-deliveries:
+    get:
+      summary: List outbound webhook deliveries and queue state
+      parameters:
+        - in: query
+          name: subscriptionId
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Webhook deliveries
+  /api/auth/refresh:
+    post:
+      summary: Exchange a refresh token for a new access token
+      responses:
+        '200':
+          description: Refresh succeeded
+        '401':
+          description: Refresh failed
+  /api/auth/logout:
+    post:
+      summary: Invalidate the current session tokens
+      responses:
+        '200':
+          description: Logout succeeded
+  /api/payments:
+    get:
+      summary: List payments via the deprecated v1 compatibility route
+      deprecated: true
+      responses:
+        '200':
+          description: Legacy payment list
+    post:
+      summary: Create payments via the deprecated v1 compatibility route
+      deprecated: true
+      responses:
+        '200':
+          description: Legacy payment created or replayed
+        '201':
+          description: Legacy payment created
+  /api/v2/mismatches/{mismatchId}:
+    patch:
+      summary: Update mismatch
+      parameters:
+        - in: path
+          name: mismatchId
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Mismatch updated
+  /api/v2/analytics:
+    get:
+      summary: Fetch analytics summary
+      responses:
+        '200':
+          description: Analytics summary
+  /api/v2/settlements:
+    get:
+      summary: List settled payments
+      responses:
+        '200':
+          description: Settlement list
+  /api/v2/webhook-traces:
+    get:
+      summary: List webhook traces
+      responses:
+        '200':
+          description: Webhook traces
+    post:
+      summary: Create webhook trace
+      responses:
+        '201':
+          description: Webhook trace created
+  /api/ai/risk-score:
+    post:
+      summary: Score transaction risk
+      responses:
+        '200':
+          description: Risk score generated

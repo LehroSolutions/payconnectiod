@@ -1,0 +1,53 @@
+{
+  "name": "payconnectoid-core",
+  "version": "0.1.0",
+  "description": "Open-core payment orchestration server with idempotent payments, provider adapters, webhook delivery queueing, analytics, and MCP access.",
+  "private": true,
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LehroSolutions/payconnectiod.git"
+  },
+  "homepage": "https://github.com/LehroSolutions/payconnectiod#readme",
+  "bugs": {
+    "url": "https://github.com/LehroSolutions/payconnectiod/issues"
+  },
+  "type": "module",
+  "main": "src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "src/",
+    "app/",
+    "scripts/",
+    "openapi.yaml",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "CODE_OF_CONDUCT.md",
+    "SECURITY.md",
+    "COMMERCIAL.md",
+    ".env.example"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "payments",
+    "africa",
+    "open-core",
+    "mcp",
+    "webhooks",
+    "analytics"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "start": "node app/server.js",
+    "sdk:generate": "node scripts/generate-sdks.js",
+    "mcp:start": "node src/mcp/server.js"
+  }
+}
+

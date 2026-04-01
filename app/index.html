@@ -1,0 +1,805 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>payconnectoid — Unified Agent</title>
+  
+  <!-- "ULTRATHINK" Typographic Selection -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  
+  <style>
+    :root {
+      /* Deep Obsidian Base */
+      --bg: #0A0A0C;
+      --bg-elevated: #111115;
+      
+      /* Quantum-Structural Accents */
+      --lime: #D4FF00;
+      --lime-dim: rgba(212, 255, 0, 0.4);
+      --lime-glow: rgba(212, 255, 0, 0.15);
+      
+      --violet: #8A2BE2;
+      --violet-dim: rgba(138, 43, 226, 0.4);
+      --violet-glow: rgba(138, 43, 226, 0.15);
+      
+      /* Typography */
+      --ink: #F0F0F5;
+      --ink-dim: #A0A0B0;
+      --ink-faint: #606070;
+      
+      /* Surface & Borders */
+      --surface: rgba(255, 255, 255, 0.02);
+      --surface-hover: rgba(255, 255, 255, 0.04);
+      --border: rgba(255, 255, 255, 0.08);
+      --border-bright: rgba(255, 255, 255, 0.15);
+      
+      /* Semantic Constants */
+      --danger: #FF2A55;
+      --warn: #FFB800;
+      --blue: #3B82F6;
+      
+      /* Spatial Properties */
+      --radius-sm: 4px;
+      --radius: 8px;
+      --radius-lg: 16px;
+      --transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      --transition-slow: 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    ::selection { background: var(--lime); color: var(--bg); }
+
+    body {
+      font-family: "Space Grotesk", sans-serif;
+      font-variant-numeric: tabular-nums;
+      background: var(--bg);
+      color: var(--ink);
+      min-height: 100vh;
+      line-height: 1.6;
+      overflow-x: hidden;
+      /* Subtle noise texture */
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.02'/%3E%3C/svg%3E");
+    }
+
+    /* ─── Architectural Grid Lines ─── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background-image: 
+        linear-gradient(var(--border) 1px, transparent 1px),
+        linear-gradient(90deg, var(--border) 1px, transparent 1px);
+      background-size: 10vw 10vw;
+      background-position: center;
+      opacity: 0.3;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Ambient Glows */
+    body::after {
+      content: '';
+      position: fixed;
+      width: 150vw; height: 150vh;
+      top: -25vh; left: -25vw;
+      background: 
+        radial-gradient(circle at 70% 30%, var(--violet-glow) 0%, transparent 40%),
+        radial-gradient(circle at 30% 70%, var(--lime-glow) 0%, transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+      animation: ambientPulse 20s infinite alternate cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    @keyframes ambientPulse {
+      0% { transform: scale(1) translate(0, 0); opacity: 0.7; }
+      100% { transform: scale(1.1) translate(2vw, -2vh); opacity: 1; }
+    }
+
+    /* ─── Header ─── */
+    .header {
+      position: relative;
+      z-index: 10;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.5rem 3vw;
+      border-bottom: 1px solid var(--border);
+      background: rgba(10, 10, 12, 0.7);
+      backdrop-filter: blur(20px);
+    }
+
+    .logo {
+      font-family: "Syne", sans-serif;
+      font-size: 1.5rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      text-transform: uppercase;
+    }
+    .logo span { color: var(--lime); font-style: italic; }
+
+    .header-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      background: var(--surface);
+      color: var(--ink-dim);
+      transition: all var(--transition);
+    }
+    .header-chip::before {
+      content: '';
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--ink-faint);
+      transition: all var(--transition);
+    }
+    .header-chip.authed {
+      border-color: var(--lime-dim);
+      color: var(--lime);
+    }
+    .header-chip.authed::before {
+      background: var(--lime);
+      box-shadow: 0 0 10px var(--lime);
+      /* Pulse explicitly for the structural element */
+      animation: indicatorPulse 2s infinite;
+    }
+
+    @keyframes indicatorPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.4); opacity: 0.5; }
+    }
+
+    /* ─── Main Asymmetric Layout ─── */
+    .layout {
+      position: relative;
+      z-index: 10;
+      display: grid;
+      grid-template-columns: 1fr 400px; /* Asymmetric split */
+      gap: 2rem;
+      padding: 3vw;
+      max-width: 1800px;
+      margin: 0 auto;
+      align-items: start;
+    }
+    
+    @media (max-width: 1100px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    /* ─── Structural Panels (Glass-Clay) ─── */
+    .panel {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 2rem;
+      backdrop-filter: blur(20px);
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+      position: relative;
+      overflow: hidden;
+      
+      /* Entrance Choreography */
+      opacity: 0;
+      transform: translateY(30px) scale(0.98);
+      animation: panelEnter 0.8s var(--transition) forwards;
+    }
+
+    @keyframes panelEnter {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* Entrance Delays */
+    .delay-1 { animation-delay: 0.1s; }
+    .delay-2 { animation-delay: 0.2s; }
+    .delay-3 { animation-delay: 0.3s; }
+    .delay-4 { animation-delay: 0.4s; }
+
+    /* Tactical Hover Effects */
+    .panel::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, var(--lime-dim) 0%, transparent 50%, var(--violet-dim) 100%);
+      -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      opacity: 0;
+      transition: opacity var(--transition);
+      pointer-events: none;
+    }
+    .panel:hover::after { opacity: 1; }
+    .panel:hover {
+      background: var(--surface-hover);
+      transform: translateY(-2px);
+      box-shadow: 0 30px 60px rgba(0,0,0,0.6);
+    }
+
+    /* ─── Typography Headers ─── */
+    .panel-header {
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      color: var(--ink);
+    }
+    .panel-header::before {
+      content: '';
+      width: 12px; height: 12px;
+      background: var(--violet);
+      display: block;
+      transform: rotate(45deg);
+    }
+    .panel-header.primary::before { background: var(--lime); }
+
+    /* ─── Forms / Inputs ─── */
+    .form-grid {
+      display: grid;
+      gap: 1.25rem;
+    }
+    
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .field-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-dim);
+    }
+
+    input, select {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      color: var(--ink);
+      font-family: "Space Grotesk", sans-serif;
+      font-size: 0.9rem;
+      padding: 0.8rem 1rem;
+      transition: all var(--transition);
+      outline: none;
+      width: 100%;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--lime);
+      box-shadow: 0 0 0 2px var(--lime-glow);
+      background: rgba(0, 0, 0, 0.6);
+    }
+
+    input::placeholder { color: var(--ink-faint); }
+    select { cursor: pointer; appearance: none; }
+
+    /* ─── Buttons ─── */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: transparent;
+      border: 1px solid var(--lime);
+      color: var(--lime);
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      padding: 1rem 2rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: all var(--transition-slow);
+    }
+
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: var(--lime);
+      transform: scaleX(0);
+      transform-origin: right;
+      transition: transform var(--transition-slow);
+      z-index: -1;
+    }
+
+    .btn:hover { color: var(--bg); font-weight: 800; box-shadow: 0 10px 30px var(--lime-glow); }
+    .btn:hover::before { transform: scaleX(1); transform-origin: left; }
+    .btn:disabled { opacity: 0.5; pointer-events: none; }
+
+    .btn-violet { border-color: var(--violet); color: var(--violet); }
+    .btn-violet::before { background: var(--violet); }
+    .btn-violet:hover { box-shadow: 0 10px 30px var(--violet-glow); }
+
+    /* ─── Central Pipeline UI ─── */
+    .pipeline-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+    
+    .pipe-node {
+      background: rgba(0, 0, 0, 0.4);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.5rem 1rem;
+      text-align: center;
+      position: relative;
+      transition: all var(--transition);
+    }
+    
+    /* Connectors */
+    .pipe-node:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 50%; right: -1rem;
+      width: 1rem; height: 1px;
+      background: var(--border);
+      z-index: -1;
+    }
+
+    .pipe-val {
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      color: var(--ink-dim);
+      margin-bottom: 0.5rem;
+      transition: color var(--transition);
+    }
+    
+    .pipe-label {
+      font-size: 0.65rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      color: var(--ink-faint);
+    }
+
+    /* Active States */
+    .pipe-node.active { border-color: var(--lime-dim); box-shadow: inset 0 0 20px var(--lime-glow); }
+    .pipe-node.active .pipe-val { color: var(--lime); }
+    
+    /* ─── Table / Ledger ─── */
+    .ledger-wrap {
+      width: 100%;
+      overflow-x: auto;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.85rem;
+      text-align: left;
+    }
+    th {
+      font-family: "Syne", sans-serif;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--ink-dim);
+      padding: 1rem;
+      border-bottom: 1px solid var(--border-bright);
+    }
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid var(--border);
+      color: var(--ink);
+    }
+    tr:hover td { background: var(--surface-hover); }
+    tr:last-child td { border-bottom: none; }
+
+    /* ─── Badges ─── */
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 0.25rem 0.6rem;
+      border-radius: 100px;
+      font-size: 0.65rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: 1px solid var(--border);
+    }
+    .status-settled { color: var(--lime); border-color: var(--lime-dim); background: var(--lime-glow); }
+    .status-initiated { color: var(--blue); border-color: rgba(59, 130, 246, 0.4); background: rgba(59, 130, 246, 0.15); }
+    .status-failed { color: var(--danger); border-color: rgba(255, 42, 85, 0.4); background: rgba(255, 42, 85, 0.15); }
+
+    /* ─── AI Output Area ─── */
+    .ai-output {
+      margin-top: 1.25rem;
+      padding: 1.25rem;
+      background: rgba(0, 0, 0, 0.3);
+      border-left: 2px solid var(--violet);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      font-size: 0.85rem;
+      color: var(--ink-dim);
+    }
+    .ai-score {
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      font-size: 2rem;
+      line-height: 1;
+      color: var(--ink);
+      margin-bottom: 0.5rem;
+    }
+
+    /* ─── Toasts ─── */
+    .toasts {
+      position: fixed;
+      bottom: 2rem; right: 2rem;
+      display: flex; flex-direction: column; gap: 1rem;
+      z-index: 1000;
+    }
+    .toast {
+      background: var(--bg-elevated);
+      border: 1px solid var(--border-bright);
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-sm);
+      font-family: "Space Grotesk", sans-serif;
+      font-weight: 600;
+      font-size: 0.8rem;
+      color: var(--ink);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+      animation: entryFromRight 0.4s var(--transition) forwards;
+      display: flex; align-items: center; gap: 1rem;
+    }
+    @keyframes entryFromRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    .toast.success { border-left: 4px solid var(--lime); }
+    .toast.error { border-left: 4px solid var(--danger); }
+
+    /* ─── Empty States ─── */
+    .empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--ink-faint);
+    }
+    .empty-icon {
+      font-size: 2rem; margin-bottom: 1rem;
+      font-family: "Syne", sans-serif;
+      font-weight: 800;
+      opacity: 0.3;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header class="header">
+    <div class="logo">pay<span>connectoid</span></div>
+    <div id="auth-chip" class="header-chip">Awaiting Authentication</div>
+  </header>
+
+  <main class="layout">
+    
+    <!-- LEFT COLUMN: Data Flow & Ledgers -->
+    <div class="data-column">
+      
+      <!-- Pipeline Status -->
+      <section class="panel delay-1" style="margin-bottom: 2rem;">
+        <h2 class="panel-header primary">Reconciliation Pipeline</h2>
+        <div class="pipeline-grid" id="pipeline-wrap">
+          <!-- Populated by JS -->
+          <div class="pipe-node"><div class="pipe-val">0</div><div class="pipe-label">Total</div></div>
+          <div class="pipe-node"><div class="pipe-val">0</div><div class="pipe-label">Auth'd</div></div>
+          <div class="pipe-node"><div class="pipe-val">0</div><div class="pipe-label">Pending</div></div>
+          <div class="pipe-node"><div class="pipe-val">0</div><div class="pipe-label">Settled</div></div>
+          <div class="pipe-node"><div class="pipe-val">0</div><div class="pipe-label">Matched</div></div>
+        </div>
+      </section>
+
+      <!-- Payments Ledger -->
+      <section class="panel delay-2">
+        <h2 class="panel-header primary">Transaction Ledger</h2>
+        <div id="ledger-wrap" class="ledger-wrap">
+          <div class="empty">
+            <div class="empty-icon">[!]</div>
+            <p>Authentication required to view ledger.</p>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- RIGHT COLUMN: Actions & Tools -->
+    <div class="action-column">
+
+      <!-- Authentication -->
+      <section class="panel delay-1" style="margin-bottom: 2rem;">
+        <h2 class="panel-header">System Access</h2>
+        <form id="auth-form" class="form-grid">
+          <div class="field">
+            <label class="field-label">Operator ID</label>
+            <input name="username" placeholder="Enter logic gate handle" required />
+          </div>
+          <div class="field">
+            <label class="field-label">Access Key</label>
+            <input name="password" type="password" placeholder="••••••••" required />
+          </div>
+          <button type="submit" class="btn">Establish Link</button>
+        </form>
+      </section>
+
+      <!-- Payment Initiator -->
+      <section class="panel delay-3" style="margin-bottom: 2rem;">
+        <h2 class="panel-header">Initialize Node</h2>
+        <form id="payment-form" class="form-grid">
+          <div class="field">
+            <label class="field-label">Recipient Origin</label>
+            <input name="recipientRef" placeholder="customer-x919" />
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="field">
+              <label class="field-label">Value (ZAR)</label>
+              <input name="amount" type="number" step="0.01" placeholder="0.00" required />
+            </div>
+            <div class="field">
+              <label class="field-label">Provider</label>
+              <select name="providerId">
+                <option value="ozow">Ozow</option>
+                <option value="payfast">PayFast</option>
+                <option value="flutterwave">Flutterwave</option>
+                <option value="paystack">Paystack</option>
+              </select>
+            </div>
+          </div>
+          <button type="submit" class="btn">Inject Capital</button>
+        </form>
+      </section>
+
+      <!-- AI Risk Scorer -->
+      <section class="panel delay-4">
+        <h2 class="panel-header" style="color: var(--violet);"><span style="background:var(--violet); width:12px; height:12px; display:inline-block; transform:rotate(45deg); margin-right: 0.75rem;"></span> AI Intelligence</h2>
+        <div class="form-grid">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <div class="field">
+              <label class="field-label">Amount</label>
+              <input id="ai-amount" type="number" step="0.01" placeholder="100.00" />
+            </div>
+            <div class="field">
+              <label class="field-label">Provider</label>
+              <input id="ai-provider" type="text" placeholder="paystack" />
+            </div>
+          </div>
+          <button type="button" id="ai-score-btn" class="btn btn-violet">Run Diagnostics</button>
+        </div>
+        <div id="ai-output" class="ai-output" style="display: none;"></div>
+      </section>
+
+    </div>
+  </main>
+
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+
+  <!-- Unified Agent Logic -->
+  <script>
+    const tokenKey = "payconnectoid.token";
+    const legacyTokenKey = "paywithafricakit.token";
+    let token = localStorage.getItem(tokenKey) || localStorage.getItem(legacyTokenKey) || "";
+
+    if (token && !localStorage.getItem(tokenKey)) {
+      localStorage.setItem(tokenKey, token);
+      localStorage.removeItem(legacyTokenKey);
+    }
+
+    // Formatting utilities
+    const formatMoney = (minor, currency = "ZAR") => new Intl.NumberFormat("en-ZA", { style: "currency", currency }).format((minor || 0) / 100);
+    const toMinor = (amount) => Number.isFinite(Number(amount)) ? Math.round(Number(amount) * 100) : null;
+    const truncId = (id) => id ? id.slice(0, 8) + '...' : "—";
+    
+    function showToast(msg, type = 'success') {
+      const container = document.getElementById('toasts');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`;
+      t.textContent = msg;
+      container.appendChild(t);
+      setTimeout(() => {
+        t.style.opacity = '0';
+        t.style.transform = 'translateY(-10px)';
+        setTimeout(() => t.remove(), 400);
+      }, 4000);
+    }
+
+    async function apiCall(endpoint, opts = {}) {
+      const headers = { "Content-Type": "application/json", ...opts.headers };
+      if (opts.auth && token) headers.Authorization = `Bearer ${token}`;
+      
+      try {
+        const res = await fetch(endpoint, {
+          method: opts.method || "GET",
+          headers,
+          body: opts.body ? JSON.stringify(opts.body) : undefined
+        });
+        const json = await res.json().catch(() => ({}));
+        return { res, json };
+      } catch (err) {
+        return { res: { ok: false }, json: { error: "Network anomaly detected." } };
+      }
+    }
+
+    function updateAuthStatus(authed) {
+      const chip = document.getElementById('auth-chip');
+      if (authed) {
+        chip.textContent = "Uplink Established";
+        chip.className = "header-chip authed";
+      } else {
+        chip.textContent = "Awaiting Authentication";
+        chip.className = "header-chip";
+      }
+    }
+
+    function renderRecon(data) {
+      const s = data?.summary || {};
+      document.getElementById('pipeline-wrap').innerHTML = `
+        <div class="pipe-node active"><div class="pipe-val">${s.totalCount || 0}</div><div class="pipe-label">Total Volume</div></div>
+        <div class="pipe-node ${s.pendingCount ? 'active':''}"><div class="pipe-val">${s.pendingCount || 0}</div><div class="pipe-label">Pending</div></div>
+        <div class="pipe-node ${s.mismatchCount ? 'active':''}"><div class="pipe-val" style="color: ${s.mismatchCount ? 'var(--warn)' : 'var(--ink-dim)'}">${s.mismatchCount || 0}</div><div class="pipe-label">Mismatches</div></div>
+        <div class="pipe-node ${s.matchedCount ? 'active':''}"><div class="pipe-val">${s.matchedCount || 0}</div><div class="pipe-label">Matched</div></div>
+        <div class="pipe-node active"><div class="pipe-val">${formatMoney(s.totalVolumeMinor)}</div><div class="pipe-label">ZAR Value</div></div>
+      `;
+    }
+
+    function renderLedger(payments) {
+      if (!payments || payments.length === 0) {
+        document.getElementById('ledger-wrap').innerHTML = `
+          <div class="empty">
+            <div class="empty-icon">[Ø]</div>
+            <p>No node activity recorded.</p>
+          </div>
+        `;
+        return;
+      }
+
+      const rows = payments.slice(0, 10).map(p => `
+        <tr>
+          <td style="font-family:'Space Grotesk',monospace; opacity:0.7">${truncId(p.id)}</td>
+          <td>${p.recipientRef || '—'}</td>
+          <td style="color:var(--lime); font-weight:600;">${formatMoney(p.amountMinor, p.currency)}</td>
+          <td style="text-transform:uppercase; font-size:0.75rem">${p.providerId}</td>
+          <td><span class="status-badge status-${p.status}">${p.status}</span></td>
+        </tr>
+      `).join('');
+
+      document.getElementById('ledger-wrap').innerHTML = `
+        <table>
+          <thead><tr><th>Origin ID</th><th>Recipient</th><th>Quantum</th><th>Provider</th><th>State</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    }
+
+    async function pullDashboard() {
+      if (!token) return;
+      const [pRes, rRes] = await Promise.all([
+        apiCall('/api/v2/payments', { auth: true }),
+        apiCall('/api/v2/reconciliation', { auth: true })
+      ]);
+      
+      if (pRes.res.ok) renderLedger(pRes.json.data?.payments || []);
+      if (rRes.res.ok) renderRecon(rRes.json.data || {});
+    }
+
+    // ─── Listeners ───
+
+    document.getElementById('auth-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button');
+      btn.textContent = "Syncing..."; btn.disabled = true;
+      
+      const payload = Object.fromEntries(new FormData(e.target));
+      const { res, json } = await apiCall('/api/auth/login', { method: 'POST', body: payload });
+      
+      btn.textContent = "Establish Link"; btn.disabled = false;
+      
+      if (res.ok && json.token) {
+        token = json.token;
+        localStorage.setItem(tokenKey, token);
+        updateAuthStatus(true);
+        showToast("Secure uplink established.", "success");
+        pullDashboard();
+      } else {
+        showToast(json.error || "Uplink denied.", "error");
+      }
+    });
+
+    document.getElementById('payment-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      if (!token) { showToast("Authentication required to inject capital.", "error"); return; }
+      
+      const btn = e.target.querySelector('button');
+      btn.textContent = "Replicating..."; btn.disabled = true;
+
+      const form = Object.fromEntries(new FormData(e.target));
+      const minor = toMinor(form.amount);
+      
+      if (!minor || minor <= 0) { 
+        showToast("Invalid quantum. Must be positive integer.", "error"); 
+        btn.textContent = "Inject Capital"; btn.disabled = false;
+        return; 
+      }
+
+      const { res, json } = await apiCall('/api/v2/payments', {
+        method: 'POST', auth: true,
+        body: {
+          idempotencyKey: `ui-ua-${Date.now()}`,
+          amountMinor: minor,
+          currency: "ZAR",
+          providerId: form.providerId,
+          recipientRef: form.recipientRef
+        }
+      });
+
+      btn.textContent = "Inject Capital"; btn.disabled = false;
+
+      if (res.ok && json.ok) {
+        showToast(`Capital injected into ${form.providerId} node.`, "success");
+        e.target.reset();
+        pullDashboard();
+      } else {
+        showToast(json.error?.message || "Injection failed.", "error");
+      }
+    });
+
+    document.getElementById('ai-score-btn').addEventListener('click', async (e) => {
+      const btn = e.target;
+      const amt = Number(document.getElementById('ai-amount').value);
+      const prov = document.getElementById('ai-provider').value;
+      const out = document.getElementById('ai-output');
+      
+      if (!amt || amt <= 0) { showToast("Diagnostics require magnitude.", "error"); return; }
+      
+      btn.textContent = "Processing..."; btn.disabled = true;
+      
+      const { res, json } = await apiCall('/api/ai/risk-score', {
+        method: 'POST',
+        body: { amount: amt, currency: "ZAR", provider: prov || "unknown", status: "pending" }
+      });
+      
+      btn.textContent = "Run Diagnostics"; btn.disabled = false;
+      
+      if (res.ok && json.ok) {
+        const d = json.data;
+        out.style.display = 'block';
+        
+        let color = "var(--lime)";
+        if (d.riskLevel === 'critical' || d.riskLevel === 'high') color = "var(--danger)";
+        else if (d.riskLevel === 'medium') color = "var(--warn)";
+
+        out.innerHTML = `
+          <div class="ai-score" style="color: ${color}">${d.riskScore} <span style="font-size:1rem; opacity:0.8; font-weight:600; text-transform:uppercase;">[${d.riskLevel}]</span></div>
+          <p style="margin-bottom:0.75rem">${d.recommendation}</p>
+          ${(d.factors || []).map(f => `<div style="opacity:0.7; font-size:0.75rem; margin-bottom:0.25rem;">› ${f}</div>`).join('')}
+        `;
+      } else {
+        showToast("Intelligence node offline.", "error");
+      }
+    });
+
+    // Boot
+    if (token) {
+      updateAuthStatus(true);
+      pullDashboard();
+    }
+  </script>
+</body>
+</html>

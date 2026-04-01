@@ -1,0 +1,27 @@
+# Dependencies
+node_modules/
+
+# Runtime state
+app/data.json
+app/data.sqlite
+
+# Environment overrides
+.env
+.env.*
+!.env.example
+
+# Test and coverage output
+coverage/
+.nyc_output/
+
+# Logs
+*.log
+npm-debug.log*
+
+# Local tooling and internal notes
+.copilot/
+.docs/
+
+# OS/editor noise
+.DS_Store
+Thumbs.db

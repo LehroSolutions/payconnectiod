@@ -2,6 +2,11 @@
 
 This repository is the open-source core of payconnectoid.
 
+## Public Repository Status
+- Public repository: https://github.com/LehroSolutions/payconnectiod
+- First public GitHub release: `v0.1.0`
+- GitHub Private Vulnerability Reporting is enabled on the public repository.
+
 ## Included Here
 - Canonical payment orchestration API
 - Provider adapters and verification/refund flow

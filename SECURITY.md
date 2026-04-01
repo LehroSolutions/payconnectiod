@@ -6,8 +6,10 @@ The open-source repository covers the payconnectoid core server, adapters, webho
 ## Reporting A Vulnerability
 Do not disclose vulnerabilities publicly in issues or pull requests.
 
-For the public GitHub repository, use GitHub Private Vulnerability Reporting or a repository security advisory.
-If that private reporting flow is not enabled yet, enable it before publishing the repository and do not accept vulnerability reports through public issues.
+For the public GitHub repository, use GitHub Private Vulnerability Reporting in the repository security tab:
+- https://github.com/LehroSolutions/payconnectiod/security
+
+Private vulnerability reporting is enabled for this repository. Do not use the public issue tracker for security disclosures.
 
 Include:
 - A clear description of the issue

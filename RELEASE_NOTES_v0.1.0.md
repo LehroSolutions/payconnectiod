@@ -1,5 +1,9 @@
 # Release Notes: v0.1.0
 
+Published: 2026-04-01
+Repository: https://github.com/LehroSolutions/payconnectiod
+Release page: https://github.com/LehroSolutions/payconnectiod/releases/tag/v0.1.0
+
 ## Overview
 payconnectoid `v0.1.0` is the first public open-core release of the payment orchestration server.
 
@@ -13,6 +17,10 @@ This release publishes the core runtime needed to:
 - access the platform through both HTTP and MCP interfaces.
 
 Production deployments now require an explicit non-default `APP_PASS` and `APP_SECRET` at startup.
+
+## Release Assets
+- `payconnectoid-v0.1.0-openapi.yaml`
+- `payconnectoid-v0.1.0.env.example`
 
 ## Highlights
 
@@ -53,5 +61,6 @@ Commercial-only features, private customer integrations, and internal operating 
 See [COMMERCIAL.md](COMMERCIAL.md) for the open-core boundary.
 
 ## Validation
-- Automated validation: `npm test` passes on the release candidate.
-- Runtime smoke: `npm start` serves `/api/health`, `/api/ready`, and `/api/v2/openapi.json`.
+- Automated validation: `npm test` passed for the published release.
+- Runtime smoke: `npm start` served `/api/health`, `/api/ready`, and `/api/v2/openapi.json` before publication.
+- Repository security: GitHub Private Vulnerability Reporting is enabled.

@@ -9,6 +9,10 @@ labels: [enhancement]
 
 Describe the user or operator problem this request solves.
 
+## Release Context
+
+Explain whether this request extends or changes the currently published `v0.1.0` surface.
+
 ## Proposed Change
 
 Describe the API, workflow, or operational change you want.

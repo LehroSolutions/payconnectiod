@@ -25,6 +25,8 @@ Describe what happened instead.
 
 ## Environment
 
+- Release/tag:
+- Commit SHA (optional):
 - Node.js version:
 - OS:
 - Runtime config changed from defaults:
@@ -32,5 +34,6 @@ Describe what happened instead.
 ## Notes
 
 Add logs, request payloads, or screenshots as needed.
+If this is a regression from the published `v0.1.0` release, say so explicitly.
 
 Do not use this template for vulnerabilities. Follow [SECURITY.md](../../SECURITY.md) instead.

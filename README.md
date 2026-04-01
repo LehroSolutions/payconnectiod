@@ -1,8 +1,19 @@
-# payconnectoid (Current Progress)
+# payconnectoid
 
-payconnectoid is being prepared as an open-core release.
+payconnectoid is published as an open-core release.
+The public repository is live at https://github.com/LehroSolutions/payconnectiod and the first public GitHub release is https://github.com/LehroSolutions/payconnectiod/releases/tag/v0.1.0.
 The open-source repository contains the core orchestration server, adapters, webhook delivery infrastructure, analytics, and MCP surfaces.
 Commercial-only features should live in a separate private codebase or private workspace folder and are intentionally not shipped in this repository.
+
+## Release Status
+- Public repository and `v0.1.0` tag are live on GitHub.
+- Release assets include a versioned `openapi.yaml` and `.env.example`.
+- GitHub Private Vulnerability Reporting is enabled in the repository security settings.
+
+## Release Assets
+- Release page: https://github.com/LehroSolutions/payconnectiod/releases/tag/v0.1.0
+- OpenAPI contract: https://github.com/LehroSolutions/payconnectiod/releases/download/v0.1.0/payconnectoid-v0.1.0-openapi.yaml
+- Environment example: https://github.com/LehroSolutions/payconnectiod/releases/download/v0.1.0/payconnectoid-v0.1.0.env.example
 
 payconnectoid provides a payment orchestration core with:
 - Session auth with access and refresh tokens
@@ -24,7 +35,7 @@ payconnectoid provides a payment orchestration core with:
 ## Test
 - `npm test`
 
-Current integration baseline: `npm test` passes on the shipped suite.
+Release baseline: the published `v0.1.0` release passed `npm test` and local smoke checks for `/api/health`, `/api/ready`, and `/api/v2/openapi.json`.
 
 ## Auth
 - Login endpoint: `POST /api/auth/login`

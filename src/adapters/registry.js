@@ -1,4 +1,4 @@
-import { PaystackAdapter } from "./paystack.js";
+import { PaystackAdapter } from './paystack.js';
 
 class AdapterRegistry {
   constructor(config = {}) {
@@ -27,10 +27,14 @@ class AdapterRegistry {
 
 function createAdapterRegistry(config = {}) {
   const registry = new AdapterRegistry(config);
-  registry.register("paystack", () => new PaystackAdapter({
-    secretKey: config.env?.PAYSTACK_SECRET_KEY,
-    baseUrl: config.paystackBaseUrl
-  }));
+  registry.register(
+    'paystack',
+    () =>
+      new PaystackAdapter({
+        secretKey: config.env?.PAYSTACK_SECRET_KEY,
+        baseUrl: config.paystackBaseUrl,
+      }),
+  );
   return registry;
 }
 

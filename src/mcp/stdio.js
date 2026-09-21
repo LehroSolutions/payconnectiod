@@ -1,5 +1,5 @@
-import { stdin, stdout, stderr, exit } from "node:process";
-import { createMessageHandler } from "./core.js";
+import { stdin, stdout, stderr, exit } from 'node:process';
+import { createMessageHandler } from './core.js';
 
 function logError(message) {
   stderr.write(`${message}\n`);
@@ -13,14 +13,14 @@ class StdioJsonRpcServer {
   }
 
   start() {
-    stdin.on("data", (chunk) => {
+    stdin.on('data', (chunk) => {
       this.buffer = Buffer.concat([this.buffer, chunk]);
       this.processBuffer().catch((error) => {
         logError(error?.stack || String(error));
       });
     });
 
-    stdin.on("end", () => {
+    stdin.on('end', () => {
       exit(0);
     });
   }
@@ -28,19 +28,19 @@ class StdioJsonRpcServer {
   async processBuffer() {
     while (true) {
       if (this.expectedLength === null) {
-        const headerEnd = this.buffer.indexOf("\r\n\r\n");
+        const headerEnd = this.buffer.indexOf('\r\n\r\n');
         if (headerEnd === -1) return;
 
-        const headerText = this.buffer.slice(0, headerEnd).toString("utf8");
+        const headerText = this.buffer.slice(0, headerEnd).toString('utf8');
         const contentLengthLine = headerText
-          .split("\r\n")
-          .find((line) => line.toLowerCase().startsWith("content-length:"));
+          .split('\r\n')
+          .find((line) => line.toLowerCase().startsWith('content-length:'));
 
         if (!contentLengthLine) {
-          throw new Error("Missing Content-Length header.");
+          throw new Error('Missing Content-Length header.');
         }
 
-        this.expectedLength = Number.parseInt(contentLengthLine.split(":")[1].trim(), 10);
+        this.expectedLength = Number.parseInt(contentLengthLine.split(':')[1].trim(), 10);
         this.buffer = this.buffer.slice(headerEnd + 4);
       }
 
@@ -50,7 +50,7 @@ class StdioJsonRpcServer {
       this.buffer = this.buffer.slice(this.expectedLength);
       this.expectedLength = null;
 
-      const message = JSON.parse(bodyBuffer.toString("utf8"));
+      const message = JSON.parse(bodyBuffer.toString('utf8'));
       const response = await this.handler(message);
       if (response) {
         this.writeMessage(response);
@@ -59,7 +59,7 @@ class StdioJsonRpcServer {
   }
 
   writeMessage(payload) {
-    const body = Buffer.from(JSON.stringify(payload), "utf8");
+    const body = Buffer.from(JSON.stringify(payload), 'utf8');
     stdout.write(`Content-Length: ${body.length}\r\n\r\n`);
     stdout.write(body);
   }
@@ -69,7 +69,7 @@ function startStdioMcpServer() {
   const handler = createMessageHandler({
     baseUrl: process.env.PAYCONNECTOID_BASE_URL ?? process.env.PAYWITHAFRICAKIT_BASE_URL,
     username: process.env.PAYCONNECTOID_USER ?? process.env.PAYWITHAFRICAKIT_USER,
-    password: process.env.PAYCONNECTOID_PASS ?? process.env.PAYWITHAFRICAKIT_PASS
+    password: process.env.PAYCONNECTOID_PASS ?? process.env.PAYWITHAFRICAKIT_PASS,
   });
   new StdioJsonRpcServer(handler).start();
 }

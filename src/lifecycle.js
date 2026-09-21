@@ -1,8 +1,8 @@
 const STATE_TRANSITIONS = {
-  initiated: ["authorized", "failed"],
-  authorized: ["settled", "failed"],
+  initiated: ['authorized', 'failed'],
+  authorized: ['settled', 'failed'],
   settled: [],
-  failed: []
+  failed: [],
 };
 
 export function canTransition(fromState, toState) {
@@ -10,22 +10,21 @@ export function canTransition(fromState, toState) {
 }
 
 export function normalizeProviderStatus(status) {
-  switch ((status ?? "").toLowerCase()) {
-    case "initiated":
-    case "pending":
-      return "initiated";
-    case "authorized":
-    case "approved":
-    case "authorised":
-      return "authorized";
-    case "captured":
-    case "settled":
-      return "settled";
-    case "declined":
-    case "failed":
-      return "failed";
+  switch ((status ?? '').toLowerCase()) {
+    case 'initiated':
+    case 'pending':
+      return 'initiated';
+    case 'authorized':
+    case 'approved':
+    case 'authorised':
+      return 'authorized';
+    case 'captured':
+    case 'settled':
+      return 'settled';
+    case 'declined':
+    case 'failed':
+      return 'failed';
     default:
-      return "initiated";
+      return 'initiated';
   }
 }
-

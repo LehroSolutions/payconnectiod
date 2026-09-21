@@ -1,6 +1,6 @@
 function toEpochMs(value) {
-  if (typeof value === "number") return value;
-  if (typeof value === "string") {
+  if (typeof value === 'number') return value;
+  if (typeof value === 'string') {
     const parsed = Date.parse(value);
     if (!Number.isNaN(parsed)) return parsed;
   }
@@ -26,20 +26,20 @@ export function reserveIdempotencyKey(records, input) {
     const record = {
       key: input.key,
       payloadHash: input.payloadHash,
-      status: "reserved",
+      status: 'reserved',
       result: null,
       createdAt: new Date(nowMs).toISOString(),
-      expiresAt: new Date(nowMs + ttlHours * 60 * 60 * 1000).toISOString()
+      expiresAt: new Date(nowMs + ttlHours * 60 * 60 * 1000).toISOString(),
     };
     records.unshift(record);
     return { accepted: true, replay: false, record };
   }
 
   if (existing.payloadHash !== input.payloadHash) {
-    return { accepted: false, replay: false, reason: "payload-mismatch", record: existing };
+    return { accepted: false, replay: false, reason: 'payload-mismatch', record: existing };
   }
 
-  if (existing.status === "completed") {
+  if (existing.status === 'completed') {
     return { accepted: true, replay: true, record: existing };
   }
 
@@ -49,10 +49,9 @@ export function reserveIdempotencyKey(records, input) {
 export function markIdempotencyComplete(records, key, result, nowMs = Date.now()) {
   const current = records.find((entry) => entry.key === key);
   if (!current) {
-    throw new Error("Idempotency key not reserved.");
+    throw new Error('Idempotency key not reserved.');
   }
-  current.status = "completed";
+  current.status = 'completed';
   current.result = result;
   current.completedAt = new Date(nowMs).toISOString();
 }
-

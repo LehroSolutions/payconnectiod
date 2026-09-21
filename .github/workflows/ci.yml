@@ -9,14 +9,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: oven-sh/setup-bun@v2
-        with:
-          bun-version: '1.3.14'
       - uses: actions/setup-node@v4
         with:
           node-version: '24.x'
-      - run: bun install
-      - run: bun run test
-      - run: bun run format:check
+      - run: npm install
+      - run: npm run verify
       - run: node --check app/server.js
+      - run: node --check src/mcp/server.js
       - run: bun run docs:check

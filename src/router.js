@@ -1,24 +1,24 @@
 function escapeRegex(value) {
-  return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
 
 function compilePath(pathPattern) {
   const keys = [];
   const pattern = pathPattern
-    .split("/")
+    .split('/')
     .map((segment) => {
-      if (!segment) return "";
-      if (segment.startsWith(":")) {
+      if (!segment) return '';
+      if (segment.startsWith(':')) {
         keys.push(segment.slice(1));
-        return "([^/]+)";
+        return '([^/]+)';
       }
       return escapeRegex(segment);
     })
-    .join("/");
+    .join('/');
 
   return {
     keys,
-    regex: new RegExp(`^${pattern}$`)
+    regex: new RegExp(`^${pattern}$`),
   };
 }
 

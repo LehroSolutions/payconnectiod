@@ -1,4 +1,4 @@
-import { startStdioMcpServer } from "./stdio.js";
+import { startStdioMcpServer } from './stdio.js';
 
 // Production entrypoint for MCP stdio transport.
 startStdioMcpServer();

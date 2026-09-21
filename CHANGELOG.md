@@ -1,9 +1,11 @@
 # Changelog
 
 ## Unreleased
+
 - No unreleased changes yet.
 
 ## 0.1.0 - 2026-04-01
+
 - Published the public GitHub repository and first GitHub release.
 - Added versioned release assets for the OpenAPI contract and environment example.
 - Enabled GitHub Private Vulnerability Reporting for the public repository.

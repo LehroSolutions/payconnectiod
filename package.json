@@ -45,7 +45,7 @@
     "analytics"
   ],
   "scripts": {
-    "test": "bun --test tests/*.test.js",
+    "test": "node --test tests/*.test.js",
     "start": "bun app/server.js",
     "sdk:generate": "bun scripts/generate-sdks.js",
     "mcp:start": "bun src/mcp/server.js",
@@ -54,7 +54,8 @@
     "docs:build": "node scripts/docs.mjs build",
     "docs:check": "node scripts/docs.mjs check",
     "format": "prettier --write \"{src,app,tests,scripts}/**/*.js\" \"*.{json,md,yml,yaml}\" \".github/workflows/*.yml\"",
-    "format:check": "prettier --check \"{src,app,tests,scripts}/**/*.js\" \"*.{json,md,yml,yaml}\" \".github/workflows/*.yml\""
+    "format:check": "prettier --check \"{src,app,tests,scripts}/**/*.js\" \"*.{json,md,yml,yaml}\" \".github/workflows/*.yml\"",
+    "verify": "npm run format:check && npm run test"
   },
   "author": "Lehro Solutions",
   "packageManager": "bun@1.3.14",

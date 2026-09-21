@@ -1,10 +1,10 @@
-import { createHash, randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 
-const SCRYPT_PREFIX = "scrypt";
+const SCRYPT_PREFIX = 'scrypt';
 const KEY_LENGTH = 64;
 
 function toBuffer(value) {
-  return Buffer.from(String(value), "utf8");
+  return Buffer.from(String(value), 'utf8');
 }
 
 function secureEqual(left, right) {
@@ -15,26 +15,26 @@ function secureEqual(left, right) {
 }
 
 function legacyHashPassword(legacySalt, password) {
-  return createHash("sha256").update(`${legacySalt}:${password}`).digest("hex");
+  return createHash('sha256').update(`${legacySalt}:${password}`).digest('hex');
 }
 
-function hashPassword(password, salt = randomBytes(16).toString("hex")) {
-  const digest = scryptSync(String(password), salt, KEY_LENGTH).toString("hex");
+function hashPassword(password, salt = randomBytes(16).toString('hex')) {
+  const digest = scryptSync(String(password), salt, KEY_LENGTH).toString('hex');
   return `${SCRYPT_PREFIX}$${salt}$${digest}`;
 }
 
 function verifyScryptHash(storedHash, password) {
-  const parts = String(storedHash).split("$");
+  const parts = String(storedHash).split('$');
   if (parts.length !== 3 || parts[0] !== SCRYPT_PREFIX) return false;
 
   const [, salt, digest] = parts;
-  const candidate = scryptSync(String(password), salt, KEY_LENGTH).toString("hex");
+  const candidate = scryptSync(String(password), salt, KEY_LENGTH).toString('hex');
   return secureEqual(candidate, digest);
 }
 
 function verifyPassword(storedHash, password, options = {}) {
-  const value = String(storedHash ?? "");
-  const legacySalt = String(options.legacySalt ?? "");
+  const value = String(storedHash ?? '');
+  const legacySalt = String(options.legacySalt ?? '');
 
   if (!value) {
     return { ok: false, nextHash: null, migrated: false };
@@ -44,7 +44,7 @@ function verifyPassword(storedHash, password, options = {}) {
     return {
       ok: verifyScryptHash(value, password),
       nextHash: null,
-      migrated: false
+      migrated: false,
     };
   }
 
@@ -53,7 +53,7 @@ function verifyPassword(storedHash, password, options = {}) {
   return {
     ok,
     nextHash: ok ? hashPassword(password) : null,
-    migrated: ok
+    migrated: ok,
   };
 }
 

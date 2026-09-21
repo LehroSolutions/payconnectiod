@@ -4,8 +4,8 @@ function envelope(requestId, ok, data = null, error = null) {
 
 function sendJson(response, code, payload, headers = {}) {
   response.writeHead(code, {
-    "Content-Type": "application/json; charset=utf-8",
-    ...headers
+    'Content-Type': 'application/json; charset=utf-8',
+    ...headers,
   });
   response.end(JSON.stringify(payload));
 }
@@ -16,9 +16,9 @@ function sendEnvelope(response, requestId, code, options) {
     code,
     envelope(requestId, options.ok, options.data ?? null, options.error ?? null),
     {
-      "x-request-id": requestId,
-      ...(options.headers ?? {})
-    }
+      'x-request-id': requestId,
+      ...(options.headers ?? {}),
+    },
   );
 }
 

@@ -1,12 +1,12 @@
-import { createHmac, randomUUID, timingSafeEqual } from "node:crypto";
+import { createHmac, randomUUID, timingSafeEqual } from 'node:crypto';
 
 const ACCESS_TTL_MS = 15 * 60 * 1000;
 const REFRESH_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
 const ROLE_SCOPES = {
-  admin: ["read", "write", "admin"],
-  operator: ["read", "write"],
-  viewer: ["read"]
+  admin: ['read', 'write', 'admin'],
+  operator: ['read', 'write'],
+  viewer: ['read'],
 };
 
 function nowIso() {
@@ -18,33 +18,33 @@ function getScopes(role) {
 }
 
 function secureEqual(left, right) {
-  const leftBuffer = Buffer.from(String(left), "utf8");
-  const rightBuffer = Buffer.from(String(right), "utf8");
+  const leftBuffer = Buffer.from(String(left), 'utf8');
+  const rightBuffer = Buffer.from(String(right), 'utf8');
   if (leftBuffer.length !== rightBuffer.length) return false;
   return timingSafeEqual(leftBuffer, rightBuffer);
 }
 
 function signTokenPayload(serializedPayload, secret) {
-  return createHmac("sha256", secret).update(serializedPayload).digest("base64url");
+  return createHmac('sha256', secret).update(serializedPayload).digest('base64url');
 }
 
 function createSignedToken(payload, secret) {
-  const serializedPayload = Buffer.from(JSON.stringify(payload), "utf8").toString("base64url");
+  const serializedPayload = Buffer.from(JSON.stringify(payload), 'utf8').toString('base64url');
   const signature = signTokenPayload(serializedPayload, secret);
   return `${serializedPayload}.${signature}`;
 }
 
 function verifyToken(token, secret) {
-  if (typeof token !== "string" || !token.includes(".")) return null;
+  if (typeof token !== 'string' || !token.includes('.')) return null;
 
-  const [serializedPayload, signature] = token.split(".");
+  const [serializedPayload, signature] = token.split('.');
   if (!serializedPayload || !signature) return null;
 
   const expectedSignature = signTokenPayload(serializedPayload, secret);
   if (!secureEqual(signature, expectedSignature)) return null;
 
   try {
-    const payload = JSON.parse(Buffer.from(serializedPayload, "base64url").toString("utf8"));
+    const payload = JSON.parse(Buffer.from(serializedPayload, 'base64url').toString('utf8'));
     if (!payload?.exp || payload.exp <= Date.now()) return null;
     return payload;
   } catch {
@@ -53,9 +53,9 @@ function verifyToken(token, secret) {
 }
 
 function parseBearer(request) {
-  const header = request.headers.authorization || "";
-  if (!header.startsWith("Bearer ")) return "";
-  return header.slice("Bearer ".length);
+  const header = request.headers.authorization || '';
+  if (!header.startsWith('Bearer ')) return '';
+  return header.slice('Bearer '.length);
 }
 
 function cleanupAuth(state) {
@@ -68,7 +68,7 @@ function issueToken(state, user, type, secret, options = {}) {
   const now = Date.now();
   const accessTtlMs = options.accessTtlMs ?? ACCESS_TTL_MS;
   const refreshTtlMs = options.refreshTtlMs ?? REFRESH_TTL_MS;
-  const expiresAt = now + (type === "access" ? accessTtlMs : refreshTtlMs);
+  const expiresAt = now + (type === 'access' ? accessTtlMs : refreshTtlMs);
   const scopes = getScopes(user.role);
   const payload = {
     sub: user.id,
@@ -76,7 +76,7 @@ function issueToken(state, user, type, secret, options = {}) {
     scopes,
     type,
     iat: now,
-    exp: expiresAt
+    exp: expiresAt,
   };
   const tokenRecord = {
     id: randomUUID(),
@@ -85,10 +85,10 @@ function issueToken(state, user, type, secret, options = {}) {
     role: user.role,
     scopes,
     createdAt: nowIso(),
-    expiresAt
+    expiresAt,
   };
 
-  if (type === "access") state.auth.accessTokens.push(tokenRecord);
+  if (type === 'access') state.auth.accessTokens.push(tokenRecord);
   else state.auth.refreshTokens.push(tokenRecord);
   return tokenRecord;
 }
@@ -99,11 +99,17 @@ function authenticate(state, request, requiredScope, secret) {
   const session = state.auth.accessTokens.find((item) => item.token === token);
   const payload = verifyToken(token, secret);
 
-  if (!session || !payload || payload.type !== "access" || payload.sub !== session.userId || payload.exp !== session.expiresAt) {
+  if (
+    !session ||
+    !payload ||
+    payload.type !== 'access' ||
+    payload.sub !== session.userId ||
+    payload.exp !== session.expiresAt
+  ) {
     return {
       ok: false,
       code: 401,
-      error: { code: "UNAUTHORIZED", message: "Missing or invalid token." }
+      error: { code: 'UNAUTHORIZED', message: 'Missing or invalid token.' },
     };
   }
 
@@ -111,7 +117,7 @@ function authenticate(state, request, requiredScope, secret) {
     return {
       ok: false,
       code: 403,
-      error: { code: "FORBIDDEN", message: "Insufficient scope." }
+      error: { code: 'FORBIDDEN', message: 'Insufficient scope.' },
     };
   }
 

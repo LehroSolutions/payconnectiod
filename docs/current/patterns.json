@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "slug": "patterns",
+  "title": "Patterns",
+  "status": "current",
+  "audience": [
+    "Payment operators",
+    "Integration developers",
+    "Contributors"
+  ],
+  "useWhen": "Use the corresponding current guide for this task.",
+  "sourceOfTruth": "current/patterns.md",
+  "counterparts": {
+    "markdown": "current/patterns.md",
+    "html": "current/patterns.html",
+    "json": "current/patterns.json"
+  },
+  "summary": "Current patterns guidance for PayconnectOID.",
+  "sections": [
+    {
+      "id": "purpose",
+      "label": "Purpose"
+    },
+    {
+      "id": "on-this-page",
+      "label": "On this page"
+    },
+    {
+      "id": "guidance",
+      "label": "Guidance"
+    },
+    {
+      "id": "verification",
+      "label": "Verification"
+    },
+    {
+      "id": "related-guides",
+      "label": "Related guides"
+    },
+    {
+      "id": "primary-workflows",
+      "label": "Primary workflows"
+    },
+    {
+      "id": "recovery-behavior",
+      "label": "Recovery behavior"
+    }
+  ],
+  "relatedGuides": [
+    "start-here",
+    "architecture",
+    "quality",
+    "contributing"
+  ],
+  "keywords": [
+    "payconnectoid",
+    "patterns",
+    "documentation",
+    "current"
+  ],
+  "lastReviewed": "2026-07-13",
+  "sourceChecksum": "da8f415b662374509ba461611a77a39243f3a5ce980e7d80dd62101de880ee39",
+  "generatedAt": "2026-07-13T11:47:55.593322+00:00",
+  "release": "archive-2026-07-13",
+  "validation": {
+    "state": "generated"
+  }
+}

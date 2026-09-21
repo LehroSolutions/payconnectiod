@@ -1,0 +1,14 @@
+{
+  "product": "PayconnectOID",
+  "title": "Upgrade Completion 2026 07 10",
+  "group": "Project",
+  "path": ".docs/UPGRADE_COMPLETION_2026-07-10.md",
+  "lead": "npm test (node test runner) after dependency restore.",
+  "content_markdown": "# 2026 Upgrade Completion\n\n## Outcome\n\n- CSP/security headers and session-only browser auth.\n- Offline typography + reduced-motion/focus treatment.\n- Operator analytics panel for refund summaries.\n- Corrected test discovery scope.\n\n## Verification gates\n\n`npm test` (node test runner) after dependency restore.\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "dark",
+    "accent": "#d4ff00",
+    "css": "design-system.css"
+  }
+}

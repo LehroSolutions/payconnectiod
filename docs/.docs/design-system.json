@@ -1,0 +1,14 @@
+{
+  "product": "PayconnectOID",
+  "title": "Design System",
+  "group": "Guides",
+  "path": ".docs/design-system.md",
+  "lead": "Operator payments cockpit",
+  "content_markdown": "# PayconnectOID Design System\n\n## Tone\nOperator payments cockpit\n\n## Mode\n`dark`\n\n## Core tokens\n- Background: `#0a0a0c`\n- Panel: `#111115`\n- Text: `#f0f0f5`\n- Muted: `#a0a0b0`\n- Line: `rgba(255,255,255,0.08)`\n- Accent: `#d4ff00`\n- Accent 2: `#8a2be2`\n- Success / Warning / Danger: `#22c55e` / `#ffb800` / `#ff2a55`\n- Radius: `12px`\n- Font: `Arial, Helvetica, sans-serif`\n- Mono: `Consolas, monospace`\n\n## Docs integration\n- Shared CSS: [design-system.css](./design-system.css)\n- Machine tokens: [design-system.tokens.json](./design-system.tokens.json)\n- All ultra-linked HTML pages are rendered with this theme (not a generic shared skin).\n\n## Operator UX standards\n- Semantic HTML and visible focus states\n- High-contrast product palette (no generic purple-gradient AI slop)\n- Prefer product density and operational clarity\n- Respect `prefers-reduced-motion`\n\n## Related\n- [Architecture](./architecture.md)\n- [How to Use](./how-to-use.md)\n- [Skills](./skills.md)\n- [Index](./index.md)\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "dark",
+    "accent": "#d4ff00",
+    "css": "design-system.css"
+  }
+}

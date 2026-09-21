@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "slug": "start-here",
+  "title": "Start Here",
+  "status": "current",
+  "audience": [
+    "Payment operators",
+    "Integration developers",
+    "Contributors"
+  ],
+  "useWhen": "Use the corresponding current guide for this task.",
+  "sourceOfTruth": "current/start-here.md",
+  "counterparts": {
+    "markdown": "current/start-here.md",
+    "html": "current/start-here.html",
+    "json": "current/start-here.json"
+  },
+  "summary": "A payment orchestration and reconciliation service with providers, webhooks, analytics, and MCP surfaces.",
+  "sections": [
+    {
+      "id": "purpose",
+      "label": "Purpose"
+    },
+    {
+      "id": "on-this-page",
+      "label": "On this page"
+    },
+    {
+      "id": "guidance",
+      "label": "Guidance"
+    },
+    {
+      "id": "verification",
+      "label": "Verification"
+    },
+    {
+      "id": "related-guides",
+      "label": "Related guides"
+    },
+    {
+      "id": "product-route",
+      "label": "Product route"
+    },
+    {
+      "id": "latest-public-changes",
+      "label": "Latest public changes"
+    },
+    {
+      "id": "choose-a-guide",
+      "label": "Choose a guide"
+    }
+  ],
+  "relatedGuides": [
+    "architecture",
+    "quality",
+    "contributing"
+  ],
+  "keywords": [
+    "payconnectoid",
+    "start-here",
+    "documentation",
+    "current"
+  ],
+  "lastReviewed": "2026-07-13",
+  "sourceChecksum": "dd189b1714492fb7ab48212b66f41d0bb344d719df18953a2410d3ef055e1729",
+  "generatedAt": "2026-07-13T11:47:55.592492+00:00",
+  "release": "archive-2026-07-13",
+  "validation": {
+    "state": "generated"
+  }
+}

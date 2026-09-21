@@ -1,0 +1,14 @@
+{
+  "product": "PayconnectOID",
+  "title": "Architecture",
+  "group": "Guides",
+  "path": ".docs/architecture.md",
+  "lead": "Provider-agnostic payments core with v2 APIs, refunds, webhooks, MCP tools, and operator shell.",
+  "content_markdown": "# PayconnectOID Architecture\n\n  ## Intent\n  Provider-agnostic payments core with v2 APIs, refunds, webhooks, MCP tools, and operator shell.\n\n  ## Runtime shape\n  - Domain: **Payments infrastructure**\n  - Primary stack: Node.js, vanilla HTTP app, adapter pattern, optional Convex scaffolds\n  - Key entrypoints:\n- `app/server.js`\n- `app/index.html`\n- `src/routes/v2.js`\n- `src/auth/tokens.js`\n\n  ## Boundaries\n  - Validate inputs at trust boundaries.\n  - Keep authorization explicit near data access.\n  - Prefer recoverable errors over silent failure.\n  - Keep side effects isolated and observable.\n\n  ## Related\n  - [Design System](./design-system.md)\n  - [Security](./security.md)\n  - [ADR-0001](./adr-0001-docs-system.md)\n  - [Roadmap](./roadmap.md)\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "dark",
+    "accent": "#d4ff00",
+    "css": "design-system.css"
+  }
+}

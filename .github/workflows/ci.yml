@@ -1,4 +1,4 @@
-name: CI
+name: PayconnectOID CI
 
 on:
   push:
@@ -9,9 +9,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.14'
       - uses: actions/setup-node@v4
         with:
-          node-version: 22
-      - run: npm install --ignore-scripts --no-audit --no-fund
-      - run: npm test
+          node-version: '24.x'
+      - run: bun install
+      - run: bun run test
+      - run: bun run format:check
       - run: node --check app/server.js
+      - run: bun run docs:check

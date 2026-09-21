@@ -1,0 +1,14 @@
+{
+  "product": "PayconnectOID",
+  "title": "Audit Improvements 2026 07 10",
+  "group": "Project",
+  "path": ".docs/AUDIT_IMPROVEMENTS_2026-07-10.md",
+  "lead": "Product: PayconnectOID",
+  "content_markdown": "        # Audit & Improvements \u2014 2026-07-10\n\n        Product: **PayconnectOID**\n\n        ## Audit findings addressed\n        - Medium: child_process spawn used shell:true on win32\n\n        ## Improvements applied\n        - Spawn hardened to shell:false\n- Confirmed Bun packageManager + INSTALL.md\n\n        ## Install verification\n        - JS/TS packages: run `bun install` from the directory containing `package.json` (repo root for workspace packages).\n        - Python packages: use venv + pip (`INSTALL.md`).\n\n        ## Related\n        - [How to Use](./how-to-use.md)\n        - [Security](./security.md)\n        - [ADR-0003 Package Manager](./adr-0003-package-manager-bun.md)\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "dark",
+    "accent": "#d4ff00",
+    "css": "design-system.css"
+  }
+}

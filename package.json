@@ -33,7 +33,8 @@
     ".env.example"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=24",
+    "bun": ">=1.3.14"
   },
   "keywords": [
     "payments",
@@ -44,10 +45,20 @@
     "analytics"
   ],
   "scripts": {
-    "test": "node --test",
-    "start": "node app/server.js",
-    "sdk:generate": "node scripts/generate-sdks.js",
-    "mcp:start": "node src/mcp/server.js"
+    "test": "bun --test tests/*.test.js",
+    "start": "bun app/server.js",
+    "sdk:generate": "bun scripts/generate-sdks.js",
+    "mcp:start": "bun src/mcp/server.js",
+    "package:manager": "bun --version",
+    "install:js": "bun install",
+    "docs:build": "node scripts/docs.mjs build",
+    "docs:check": "node scripts/docs.mjs check",
+    "format": "prettier --write \"{src,app,tests,scripts}/**/*.js\" \"*.{json,md,yml,yaml}\" \".github/workflows/*.yml\"",
+    "format:check": "prettier --check \"{src,app,tests,scripts}/**/*.js\" \"*.{json,md,yml,yaml}\" \".github/workflows/*.yml\""
+  },
+  "author": "Lehro Solutions",
+  "packageManager": "bun@1.3.14",
+  "devDependencies": {
+    "prettier": "^3.5.3"
   }
 }
-

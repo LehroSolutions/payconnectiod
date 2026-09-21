@@ -20,8 +20,16 @@ npm-debug.log*
 
 # Local tooling and internal notes
 .copilot/
-.docs/
 
 # OS/editor noise
 .DS_Store
 Thumbs.db
+dist/
+.venv/
+__pycache__/
+
+# Bun is the canonical package manager and lockfile authority
+package-lock.json
+
+#VIDEOS
+promovideo

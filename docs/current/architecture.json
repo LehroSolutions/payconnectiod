@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "slug": "architecture",
+  "title": "Architecture",
+  "status": "current",
+  "audience": [
+    "Payment operators",
+    "Integration developers",
+    "Contributors"
+  ],
+  "useWhen": "Use the corresponding current guide for this task.",
+  "sourceOfTruth": "current/architecture.md",
+  "counterparts": {
+    "markdown": "current/architecture.md",
+    "html": "current/architecture.html",
+    "json": "current/architecture.json"
+  },
+  "summary": "Current architecture guidance for PayconnectOID.",
+  "sections": [
+    {
+      "id": "purpose",
+      "label": "Purpose"
+    },
+    {
+      "id": "on-this-page",
+      "label": "On this page"
+    },
+    {
+      "id": "guidance",
+      "label": "Guidance"
+    },
+    {
+      "id": "verification",
+      "label": "Verification"
+    },
+    {
+      "id": "related-guides",
+      "label": "Related guides"
+    },
+    {
+      "id": "system-map",
+      "label": "System map"
+    },
+    {
+      "id": "ownership-boundaries",
+      "label": "Ownership boundaries"
+    },
+    {
+      "id": "safe-change-sequence",
+      "label": "Safe change sequence"
+    }
+  ],
+  "relatedGuides": [
+    "start-here",
+    "quality",
+    "contributing"
+  ],
+  "keywords": [
+    "payconnectoid",
+    "architecture",
+    "documentation",
+    "current"
+  ],
+  "lastReviewed": "2026-07-13",
+  "sourceChecksum": "0216bd1a6c6a82c72bd73ff7b06d4e1a765872129e1289b08f59a4fdde8e6bbc",
+  "generatedAt": "2026-07-13T11:47:55.593549+00:00",
+  "release": "archive-2026-07-13",
+  "validation": {
+    "state": "generated"
+  }
+}

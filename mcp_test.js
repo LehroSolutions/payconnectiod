@@ -1,7 +1,7 @@
 import { spawn } from 'child_process';
 const path = `"C:\\Users\\Home Station\\.vscode\\extensions\\highagency.pencildev-0.6.21\\out\\mcp-server-windows-x64.exe"`;
 
-const child = spawn(path, ['--app', 'antigravity'], { shell: true });
+const child = spawn(path, ['--app', 'antigravity'], { shell: false });
 
 let responseBuffer = '';
 

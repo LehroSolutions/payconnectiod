@@ -311,6 +311,11 @@ function createRequestHandler(runtime) {
     const url = new URL(request.url || "/", `http://${runtime.config.host}:${runtime.config.port}`);
     const path = url.pathname;
     response.setHeader("x-request-id", requestId);
+    response.setHeader("x-content-type-options", "nosniff");
+    response.setHeader("x-frame-options", "DENY");
+    response.setHeader("referrer-policy", "no-referrer");
+    response.setHeader("permissions-policy", "camera=(), microphone=(), geolocation=()");
+    response.setHeader("content-security-policy", "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
 
     if (applyCors(request, response, runtime.config)) {
       return;

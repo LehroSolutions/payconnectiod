@@ -1,0 +1,72 @@
+{
+  "schemaVersion": "1.0",
+  "slug": "foundations",
+  "title": "Foundations",
+  "status": "current",
+  "audience": [
+    "Payment operators",
+    "Integration developers",
+    "Contributors"
+  ],
+  "useWhen": "Use the corresponding current guide for this task.",
+  "sourceOfTruth": "current/foundations.md",
+  "counterparts": {
+    "markdown": "current/foundations.md",
+    "html": "current/foundations.html",
+    "json": "current/foundations.json"
+  },
+  "summary": "Current foundations guidance for PayconnectOID.",
+  "sections": [
+    {
+      "id": "purpose",
+      "label": "Purpose"
+    },
+    {
+      "id": "on-this-page",
+      "label": "On this page"
+    },
+    {
+      "id": "guidance",
+      "label": "Guidance"
+    },
+    {
+      "id": "verification",
+      "label": "Verification"
+    },
+    {
+      "id": "related-guides",
+      "label": "Related guides"
+    },
+    {
+      "id": "non-negotiable-rules",
+      "label": "Non-negotiable rules"
+    },
+    {
+      "id": "accessibility-baseline",
+      "label": "Accessibility baseline"
+    },
+    {
+      "id": "content-rules",
+      "label": "Content rules"
+    }
+  ],
+  "relatedGuides": [
+    "start-here",
+    "architecture",
+    "quality",
+    "contributing"
+  ],
+  "keywords": [
+    "payconnectoid",
+    "foundations",
+    "documentation",
+    "current"
+  ],
+  "lastReviewed": "2026-07-13",
+  "sourceChecksum": "1542118356905a9be0b6268ef7ae802dcc1bc0ccfc3b4b3637efd7857aed6105",
+  "generatedAt": "2026-07-13T11:47:55.592768+00:00",
+  "release": "archive-2026-07-13",
+  "validation": {
+    "state": "generated"
+  }
+}

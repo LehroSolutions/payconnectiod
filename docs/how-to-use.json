@@ -1,0 +1,14 @@
+{
+  "product": "PayconnectOID",
+  "title": "How To Use",
+  "group": "Guides",
+  "path": "how-to-use.md",
+  "lead": "Payment orchestration core with v2 APIs, webhooks, refunds, analytics, and MCP.",
+  "content_markdown": "# How to Use PayconnectOID\n\nPayment orchestration core with v2 APIs, webhooks, refunds, analytics, and MCP.\n\n## 1) Install & run\n\n```bash\ncp .env.example .env\nbun install\nbun start\n```\n\nOpen http://127.0.0.1:4106\n\n## 2) First API session\n1. `POST /api/auth/login`\n2. Call v2 endpoints with `Authorization: Bearer <token>`\n3. Create a payment using an Idempotency-Key\n4. Inspect refunds and analytics endpoints\n\nUseful routes:\n- `GET /api/health`\n- `GET /api/v2/openapi.json`\n- `/api/v2/payments`\n- `/api/v2/refunds`\n- `/api/v2/analytics/*`\n\n## 3) Tests\n\n```bash\nbun test\n```\n\n## 4) Production requirements\n- Strong `APP_PASS` and `APP_SECRET`\n- Private webhook signing secrets\n- Do not expose the operator console without auth controls\n\n## Related\n- [INSTALL.md](../../INSTALL.md)\n- [Security](../../SECURITY.md)\n- [Architecture](./architecture.md)\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "dark",
+    "accent": "#d4ff00",
+    "css": "design-system.css"
+  }
+}

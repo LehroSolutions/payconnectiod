@@ -6,9 +6,6 @@
   <title>payconnectoid — Unified Agent</title>
   
   <!-- "ULTRATHINK" Typographic Selection -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
   
   <style>
     :root {
@@ -53,7 +50,7 @@
     ::selection { background: var(--lime); color: var(--bg); }
 
     body {
-      font-family: "Space Grotesk", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-variant-numeric: tabular-nums;
       background: var(--bg);
       color: var(--ink);
@@ -112,7 +109,7 @@
     }
 
     .logo {
-      font-family: "Syne", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-size: 1.5rem;
       font-weight: 800;
       letter-spacing: -0.02em;
@@ -227,7 +224,7 @@
 
     /* ─── Typography Headers ─── */
     .panel-header {
-      font-family: "Syne", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-weight: 700;
       font-size: 1.25rem;
       text-transform: uppercase;
@@ -272,7 +269,7 @@
       border: 1px solid var(--border);
       border-radius: var(--radius-sm);
       color: var(--ink);
-      font-family: "Space Grotesk", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-size: 0.9rem;
       padding: 0.8rem 1rem;
       transition: all var(--transition);
@@ -297,7 +294,7 @@
       background: transparent;
       border: 1px solid var(--lime);
       color: var(--lime);
-      font-family: "Syne", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-weight: 700;
       font-size: 0.8rem;
       text-transform: uppercase;
@@ -358,7 +355,7 @@
     }
 
     .pipe-val {
-      font-family: "Syne", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-weight: 800;
       font-size: 2rem;
       color: var(--ink-dim);
@@ -390,7 +387,7 @@
       text-align: left;
     }
     th {
-      font-family: "Syne", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.1em;
@@ -433,7 +430,7 @@
       color: var(--ink-dim);
     }
     .ai-score {
-      font-family: "Syne", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-weight: 800;
       font-size: 2rem;
       line-height: 1;
@@ -453,7 +450,7 @@
       border: 1px solid var(--border-bright);
       padding: 1rem 1.5rem;
       border-radius: var(--radius-sm);
-      font-family: "Space Grotesk", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-weight: 600;
       font-size: 0.8rem;
       color: var(--ink);
@@ -476,10 +473,12 @@
     }
     .empty-icon {
       font-size: 2rem; margin-bottom: 1rem;
-      font-family: "Syne", sans-serif;
+      font-family: Arial, Helvetica, sans-serif;
       font-weight: 800;
       opacity: 0.3;
     }
+    :focus-visible{outline:2px solid var(--lime);outline-offset:3px}
+    @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
   </style>
 </head>
 
@@ -587,7 +586,15 @@
       </section>
 
     </div>
-  </main>
+  
+<section id="analytics-panel" class="panel" style="margin-top:1rem">
+  <div class="panel-head" style="display:flex;justify-content:space-between;gap:1rem;align-items:center">
+    <strong>Refund analytics</strong>
+    <button id="refresh-analytics" type="button">Refresh</button>
+  </div>
+  <pre id="analytics-output" style="white-space:pre-wrap;min-height:4rem">Authenticate to load analytics.</pre>
+</section>
+</main>
 
   <div id="toasts" class="toasts" aria-live="polite"></div>
 
@@ -595,12 +602,10 @@
   <script>
     const tokenKey = "payconnectoid.token";
     const legacyTokenKey = "paywithafricakit.token";
-    let token = localStorage.getItem(tokenKey) || localStorage.getItem(legacyTokenKey) || "";
+    let token = sessionStorage.getItem(tokenKey) || "";
 
-    if (token && !localStorage.getItem(tokenKey)) {
-      localStorage.setItem(tokenKey, token);
-      localStorage.removeItem(legacyTokenKey);
-    }
+    localStorage.removeItem(tokenKey);
+    localStorage.removeItem(legacyTokenKey);
 
     // Formatting utilities
     const formatMoney = (minor, currency = "ZAR") => new Intl.NumberFormat("en-ZA", { style: "currency", currency }).format((minor || 0) / 100);
@@ -713,7 +718,7 @@
       
       if (res.ok && json.token) {
         token = json.token;
-        localStorage.setItem(tokenKey, token);
+        sessionStorage.setItem(tokenKey, token);
         updateAuthStatus(true);
         showToast("Secure uplink established.", "success");
         pullDashboard();
@@ -800,6 +805,25 @@
       updateAuthStatus(true);
       pullDashboard();
     }
-  </script>
+  
+
+async function loadAnalytics() {
+  const out = document.getElementById('analytics-output');
+  if (!out) return;
+  if (!token) { out.textContent = 'Authenticate to load analytics.'; return; }
+  try {
+    const res = await fetch('/api/v2/analytics/refunds', {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    const data = await res.json().catch(() => ({}));
+    out.textContent = res.ok ? JSON.stringify(data, null, 2) : (data.error?.message || data.error || `HTTP ${res.status}`);
+  } catch (err) {
+    out.textContent = String(err);
+  }
+}
+document.getElementById('refresh-analytics')?.addEventListener('click', loadAnalytics);
+// best-effort refresh after login flows if token already present
+if (typeof token !== 'undefined' && token) loadAnalytics();
+</script>
 </body>
 </html>

@@ -1,0 +1,14 @@
+{
+  "product": "PayconnectOID",
+  "title": "Adr 0003 Package Manager Bun",
+  "group": "ADRs",
+  "path": ".docs/adr-0003-package-manager-bun.md",
+  "lead": "Accepted \u2014 Bun-first",
+  "content_markdown": "# ADR-0003: Package manager selection (Bun vs alternatives)\n\n## Status\nAccepted \u2014 Bun-first\n\n## Context\nThe constellation mixes Next.js/Vite/Node CLIs with pure Python services. Bun is excellent for JS/TS install + runtime ergonomics, but it is not a Python package manager.\n\n## Decision\nPayconnectOID is a JavaScript/TypeScript codebase. **Bun is the preferred package manager and script runner.** Use Node only as a compatibility fallback.\n\n### Recommendation\nAdopt Bun for install/run/test/build scripts.\n\n## Bun ideal when\n- Dependencies are npm packages\n- Scripts are Node/TypeScript CLIs or Vite/Next apps\n- Fast local install and `bunx` DX matter\n\n## Bun not ideal when\n- Runtime is CPython/FastAPI/pytest\n- Native Python packaging/metadata is required\n- Tooling assumes pip/uv lock semantics exclusively\n\n## Consequences\n- JS/TS packages declare `packageManager: bun@...` and ship `bunfig.toml`\n- npm lockfiles are archived as legacy artifacts\n- Contributors generate `bun.lock` with `bun install` on a network machine\n- Python packages keep their existing tooling\n\n## Related\n- [How to Use](./how-to-use.md)\n- [Architecture](./architecture.md)\n- [Index](./index.md)\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "dark",
+    "accent": "#d4ff00",
+    "css": "design-system.css"
+  }
+}

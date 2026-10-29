@@ -12,10 +12,33 @@ function normalizeCurrency(input) {
     .toUpperCase();
 }
 
+const DECIMAL_MINOR_PATTERN = /^(-?)(\d+)(?:\.(\d+))?$/;
+const MINOR_UNIT_EPSILON = 1e-6;
+
+function toMinorUnits(amount) {
+  const scaled = amount * 100;
+  const rounded = Math.round(scaled);
+  if (Math.abs(scaled - rounded) > MINOR_UNIT_EPSILON) return null;
+  return rounded;
+}
+
 function amountToMinor(value) {
+  if (value === null || value === undefined) return null;
+
+  if (typeof value === 'string') {
+    const trimmed = value.trim();
+    if (!trimmed) return null;
+    const match = DECIMAL_MINOR_PATTERN.exec(trimmed);
+    if (match) {
+      const [, sign, whole, fraction = ''] = match;
+      if (fraction.length > 2) return null;
+      return Number(`${sign}${whole}${(fraction + '00').slice(0, 2)}`);
+    }
+  }
+
   const amount = Number(value);
   if (!Number.isFinite(amount)) return null;
-  return Math.round(amount * 100);
+  return toMinorUnits(amount);
 }
 
 function parsePositiveInteger(value, fallback) {
@@ -204,11 +227,11 @@ function validateRefundRequest(payment, amountMinor) {
     };
   }
 
-  if (!Number.isInteger(amountMinor) || amountMinor <= 0) {
+  if (!Number.isSafeInteger(amountMinor) || amountMinor <= 0) {
     return {
       ok: false,
       code: 400,
-      error: { code: 'VALIDATION_ERROR', message: 'amountMinor must be a positive integer.' },
+      error: { code: 'VALIDATION_ERROR', message: 'amountMinor must be a positive safe integer.' },
     };
   }
 
@@ -334,9 +357,9 @@ function refundAnalytics(state, searchParams = new URLSearchParams()) {
     return true;
   });
 
-  const byProvider = {};
-  const byCurrency = {};
-  const byStatus = {};
+  const byProvider = Object.create(null);
+  const byCurrency = Object.create(null);
+  const byStatus = Object.create(null);
 
   for (const refund of refunds) {
     byProvider[refund.providerId] = (byProvider[refund.providerId] ?? 0) + refund.amountMinor;
@@ -385,8 +408,8 @@ function deliveryAnalytics(state, searchParams = new URLSearchParams()) {
     return true;
   });
 
-  const byStatus = {};
-  const byEvent = {};
+  const byStatus = Object.create(null);
+  const byEvent = Object.create(null);
   for (const delivery of deliveries) {
     byStatus[delivery.status] = (byStatus[delivery.status] ?? 0) + 1;
     byEvent[delivery.event] = (byEvent[delivery.event] ?? 0) + 1;
@@ -454,8 +477,8 @@ function parseCreatePaymentPayload(payload, { allowLegacyAmount }) {
   const amountMinorCandidate =
     payload.amountMinor ?? (allowLegacyAmount ? amountToMinor(payload.amount) : null);
   const amountMinor = Number(amountMinorCandidate);
-  if (!Number.isInteger(amountMinor) || amountMinor <= 0) {
-    errors.push('amountMinor must be a positive integer minor-unit amount.');
+  if (!Number.isSafeInteger(amountMinor) || amountMinor <= 0) {
+    errors.push('amountMinor must be a positive safe integer minor-unit amount.');
   }
 
   const currency = normalizeCurrency(payload.currency);
@@ -523,9 +546,17 @@ async function createPaymentFromInput(runtime, requestId, paymentInput, logEvent
       ok: false,
       code: 409,
       error: {
-        code: 'IDEMPOTENCY_CONFLICT',
-        message: 'Idempotency key conflict.',
-        details: ['The idempotency key was reused with a different payload.'],
+        code:
+          idempotency.reason === 'in-progress' ? 'IDEMPOTENCY_IN_PROGRESS' : 'IDEMPOTENCY_CONFLICT',
+        message:
+          idempotency.reason === 'in-progress'
+            ? 'This payment is still in progress or requires reconciliation.'
+            : 'Idempotency key conflict.',
+        details: [
+          idempotency.reason === 'in-progress'
+            ? 'Do not retry with a new key. Verify the provider outcome first.'
+            : 'The idempotency key was reused with a different payload.',
+        ],
       },
     };
   }
@@ -544,6 +575,9 @@ async function createPaymentFromInput(runtime, requestId, paymentInput, logEvent
 
   const targetStatus = normalizeProviderStatus(paymentInput.providerStatus ?? 'initiated');
   if (!transitionAllowed('initiated', targetStatus)) {
+    runtime.state.idempotencyRecords = runtime.state.idempotencyRecords.filter(
+      (entry) => entry !== idempotency.record,
+    );
     logEvent(runtime, 'warn', 'invalid_transition_on_create', requestId, {
       from: 'initiated',
       to: targetStatus,
@@ -577,6 +611,8 @@ async function createPaymentFromInput(runtime, requestId, paymentInput, logEvent
 
   const adapter = resolveAdapter(runtime, payment.providerId);
   if (adapter) {
+    idempotency.record.paymentId = payment.id;
+    await runtime.persist();
     const initiation = await adapter.initiate({
       ...paymentInput,
       paymentId: payment.id,
@@ -636,7 +672,7 @@ function reconciliationData(state) {
   const byStatus = state.ledger.reduce((acc, payment) => {
     acc[payment.status] = (acc[payment.status] || 0) + 1;
     return acc;
-  }, {});
+  }, Object.create(null));
 
   const totalCount = state.ledger.length;
   const pendingCount = (byStatus.initiated || 0) + (byStatus.authorized || 0);

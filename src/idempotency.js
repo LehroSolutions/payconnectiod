@@ -10,7 +10,7 @@ function toEpochMs(value) {
 export function cleanupExpiredIdempotency(records, nowMs = Date.now()) {
   const kept = records.filter((entry) => {
     const expiresAtMs = toEpochMs(entry.expiresAt);
-    return expiresAtMs === null || expiresAtMs > nowMs;
+    return entry.status !== 'completed' || expiresAtMs === null || expiresAtMs > nowMs;
   });
   records.length = 0;
   records.push(...kept);
@@ -43,7 +43,7 @@ export function reserveIdempotencyKey(records, input) {
     return { accepted: true, replay: true, record: existing };
   }
 
-  return { accepted: true, replay: false, record: existing };
+  return { accepted: false, replay: false, reason: 'in-progress', record: existing };
 }
 
 export function markIdempotencyComplete(records, key, result, nowMs = Date.now()) {

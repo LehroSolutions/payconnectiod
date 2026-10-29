@@ -1,3 +1,4 @@
+import { performRefund } from '../refunds.js';
 import { randomUUID } from 'node:crypto';
 import { sendEnvelope } from '../envelope.js';
 import { notifyPaymentEvent } from '../events/delivery.js';
@@ -15,7 +16,6 @@ import {
   refundAnalytics,
   resolveAdapter,
   updatePaymentStatus,
-  validateRefundRequest,
 } from './shared.js';
 
 function registerV2Routes(router) {
@@ -232,44 +232,10 @@ function registerV2Routes(router) {
       }
 
       const payload = await readJsonBody(request, runtime.config.bodyLimitBytes);
-      const amountMinor = Number(payload.amountMinor ?? payment.amountMinor);
-      if (!payment.providerRef) {
-        sendEnvelope(response, requestId, 409, {
-          ok: false,
-          error: {
-            code: 'MISSING_PROVIDER_REF',
-            message: 'Payment does not have a provider reference to refund.',
-          },
-        });
-        return;
-      }
-
-      const validation = validateRefundRequest(payment, amountMinor);
-      if (!validation.ok) {
-        sendEnvelope(response, requestId, validation.code, {
-          ok: false,
-          error: validation.error,
-        });
-        return;
-      }
-
-      const refundResult = await adapter.refund(payment.providerRef, amountMinor);
-      const refund = {
-        id: randomUUID(),
-        createdAt: nowIso(),
-        amountMinor,
-        providerRef: refundResult.providerRef ?? payment.providerRef,
-        status: String(refundResult.status ?? 'pending'),
-        rawResponse: refundResult.rawResponse ?? null,
-      };
-      payment.refunds.unshift(refund);
-      payment.refundedAmountMinor = Number(payment.refundedAmountMinor ?? 0) + amountMinor;
-      payment.updatedAt = nowIso();
-
-      await saveState(runtime);
+      const { refund, replay } = await performRefund(runtime, payment, payload, adapter);
       sendEnvelope(response, requestId, 200, {
         ok: true,
-        data: { payment, refund },
+        data: { payment, refund, replay },
       });
     },
     { authScope: 'write' },

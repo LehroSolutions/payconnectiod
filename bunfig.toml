@@ -1,6 +1,2 @@
-[install]
-exact = true
-auto = false
-
 [run]
-bun = true
+bun = false

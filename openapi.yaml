@@ -133,9 +133,30 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [idempotencyKey]
+              properties:
+                idempotencyKey:
+                  type: string
+                  minLength: 1
+                  maxLength: 200
+                amountMinor:
+                  type: integer
+                  minimum: 1
       responses:
         '200':
-          description: Refund created
+          description: Refund created or replayed
+        '400':
+          description: Invalid amount or missing idempotency key
+        '409':
+          description: Conflict or reconciliation required
+        '502':
+          description: Unknown provider outcome; reserved amount retained
   /api/v2/refunds:
     get:
       summary: List refunds
@@ -385,6 +406,12 @@ paths:
       responses:
         '201':
           description: Webhook subscription created
+        '400':
+          description: >-
+            VALIDATION_ERROR (missing url or events) or UNSAFE_WEBHOOK_URL
+            (non-http scheme, embedded credentials, or a host that resolves to a
+            private/loopback/link-local address such as 169.254.169.254).
+            Private targets are allowed only when WEBHOOK_ALLOW_PRIVATE_TARGETS=true.
   /api/v2/webhook-subscriptions/{subscriptionId}:
     patch:
       summary: Update an outbound webhook subscription
@@ -397,6 +424,10 @@ paths:
       responses:
         '200':
           description: Webhook subscription updated
+        '400':
+          description: >-
+            UNSAFE_WEBHOOK_URL when a new url fails the outbound delivery
+            target check.
     delete:
       summary: Disable an outbound webhook subscription
       parameters:
@@ -489,3 +520,7 @@ paths:
       responses:
         '200':
           description: Risk score generated
+        '400':
+          description: >-
+            VALIDATION_ERROR when amountMinor is not a non-negative integer, or
+            when amount carries more precision than the currency's minor unit.

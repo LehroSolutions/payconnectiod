@@ -12,7 +12,10 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24.x'
-      - run: npm install
+      - uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: '1.3.14'
+      - run: bun install --frozen-lockfile
       - run: npm run verify
       - run: node --check app/server.js
       - run: node --check src/mcp/server.js

@@ -102,6 +102,9 @@ export function createConfig(options = {}) {
     authSalt: options.authSalt ?? env.AUTH_SALT ?? DEFAULT_AUTH_SALT,
     idempotencyTtlHours: asNumber(options.idempotencyTtlHours ?? env.IDEMPOTENCY_TTL_HOURS, 24),
     webhookDefaultSecret: options.webhookDefaultSecret ?? env.WEBHOOK_SIGNING_SECRET_DEFAULT ?? '',
+    webhookAllowPrivateTargets:
+      options.webhookAllowPrivateTargets ??
+      (env.WEBHOOK_ALLOW_PRIVATE_TARGETS === 'true' ? true : !isProductionEnv(env)),
     paystackBaseUrl: options.paystackBaseUrl ?? env.PAYSTACK_BASE_URL ?? 'https://api.paystack.co',
     webhookRetryDelaysMs: parseNumberList(
       options.webhookRetryDelaysMs ?? env.WEBHOOK_RETRY_DELAYS_MS,

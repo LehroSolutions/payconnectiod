@@ -1,7 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { sendJson } from '../envelope.js';
 import { readJsonBody } from '../http/request.js';
-import { verifyPassword } from '../auth/passwords.js';
+import { burnVerificationTime, verifyPassword } from '../auth/passwords.js';
 import { cleanupAuth, issueToken, parseBearer, verifyToken } from '../auth/tokens.js';
 import { nowIso } from './shared.js';
 
@@ -17,8 +17,8 @@ function registerAuthRoutes(router) {
 
     const user = runtime.state.users.find((entry) => entry.username === username);
     const verification = user
-      ? verifyPassword(user.passwordHash, password, { legacySalt: runtime.config.authSalt })
-      : { ok: false, nextHash: null };
+      ? await verifyPassword(user.passwordHash, password, { legacySalt: runtime.config.authSalt })
+      : (await burnVerificationTime(password), { ok: false, nextHash: null });
     const success = Boolean(user && verification.ok);
 
     runtime.state.auth.audit.unshift({

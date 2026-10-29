@@ -1,4 +1,5 @@
 import { createHmac, randomUUID } from 'node:crypto';
+import { assertSafeWebhookTarget } from '../net/url-guard.js';
 
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
@@ -73,6 +74,19 @@ async function deliverWebhook(runtime, subscription, eventPayload) {
     error: null,
   };
 
+  const target = await assertSafeWebhookTarget(subscription.url, {
+    allowPrivateTargets: runtime.config.webhookAllowPrivateTargets === true,
+  });
+  if (!target.ok) {
+    record.error = `Blocked unsafe delivery target: ${target.reason}`;
+    subscription.consecutiveFailures = Number(subscription.consecutiveFailures ?? 0) + 1;
+    if (subscription.consecutiveFailures >= 10) {
+      subscription.active = false;
+    }
+    runtime.state.webhookDeliveries.unshift(record);
+    return record;
+  }
+
   for (let attempt = 0; attempt < delays.length; attempt += 1) {
     if (delays[attempt] > 0) {
       await sleep(delays[attempt]);
@@ -96,6 +110,7 @@ async function deliverWebhook(runtime, subscription, eventPayload) {
         },
         body: payloadText,
         signal: controller.signal,
+        redirect: 'manual',
       });
       clearTimeout(timeout);
 
@@ -207,6 +222,19 @@ function createWebhookDeliveryQueue({ runtime, saveState }) {
     }
   }
 
+  function safeStart() {
+    processLoop().catch((error) => {
+      pushDeadLetter(
+        runtime,
+        { payload: { event: 'queue.error' } },
+        {
+          reason: 'queue_crashed',
+          lastError: `Webhook delivery queue stopped: ${error?.message || String(error)}`,
+        },
+      );
+    });
+  }
+
   async function enqueuePaymentEvent(payment, previousStatus) {
     const activeSubscriptions = runtime.state.webhookSubscriptions.filter(
       (subscription) => subscription.active !== false,
@@ -238,7 +266,7 @@ function createWebhookDeliveryQueue({ runtime, saveState }) {
 
     await saveState(runtime);
     if (runtime.config.webhookQueueAutoStart !== false) {
-      void processLoop();
+      safeStart();
     }
     return enqueued;
   }
@@ -267,7 +295,7 @@ function createWebhookDeliveryQueue({ runtime, saveState }) {
     getStats,
     onIdle,
     start: () => {
-      void processLoop();
+      safeStart();
     },
   };
 }

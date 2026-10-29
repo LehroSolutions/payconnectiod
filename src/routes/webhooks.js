@@ -3,6 +3,7 @@ import { sendEnvelope } from '../envelope.js';
 import { readJsonBody, readRawBody, parseJsonText } from '../http/request.js';
 import { notifyPaymentEvent } from '../events/delivery.js';
 import { verifyProviderWebhook } from '../webhook.js';
+import { assertSafeWebhookTarget } from '../net/url-guard.js';
 import { nowIso, updatePaymentStatus, webhookSecretForProvider } from './shared.js';
 
 function registerWebhookRoutes(router) {
@@ -162,10 +163,21 @@ function registerWebhookRoutes(router) {
         return;
       }
 
+      const target = await assertSafeWebhookTarget(payload.url, {
+        allowPrivateTargets: runtime.config.webhookAllowPrivateTargets === true,
+      });
+      if (!target.ok) {
+        sendEnvelope(response, requestId, 400, {
+          ok: false,
+          error: { code: 'UNSAFE_WEBHOOK_URL', message: target.reason },
+        });
+        return;
+      }
+
       const subscription = {
         id: randomUUID(),
         createdAt: nowIso(),
-        url: payload.url.trim(),
+        url: target.url.href,
         events: payload.events.map((item) => String(item)),
         secret: payload.secret ? String(payload.secret) : randomUUID(),
         active: payload.active ?? true,
@@ -198,7 +210,19 @@ function registerWebhookRoutes(router) {
       }
 
       const payload = await readJsonBody(request, runtime.config.bodyLimitBytes);
-      if (payload.url !== undefined) subscription.url = String(payload.url).trim();
+      if (payload.url !== undefined) {
+        const target = await assertSafeWebhookTarget(payload.url, {
+          allowPrivateTargets: runtime.config.webhookAllowPrivateTargets === true,
+        });
+        if (!target.ok) {
+          sendEnvelope(response, requestId, 400, {
+            ok: false,
+            error: { code: 'UNSAFE_WEBHOOK_URL', message: target.reason },
+          });
+          return;
+        }
+        subscription.url = target.url.href;
+      }
       if (payload.events !== undefined && Array.isArray(payload.events))
         subscription.events = payload.events.map((item) => String(item));
       if (payload.active !== undefined) subscription.active = Boolean(payload.active);

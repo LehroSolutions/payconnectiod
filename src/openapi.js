@@ -297,20 +297,25 @@ const openApiDocument = {
         security: [{ bearerAuth: [] }],
         parameters: [{ name: 'paymentId', in: 'path', required: true, schema: { type: 'string' } }],
         requestBody: {
-          required: false,
+          required: true,
           content: {
             'application/json': {
               schema: {
                 type: 'object',
+                required: ['idempotencyKey'],
                 properties: {
-                  amountMinor: { type: 'integer' },
+                  amountMinor: { type: 'integer', minimum: 1 },
+                  idempotencyKey: { type: 'string', minLength: 1, maxLength: 200 },
                 },
               },
             },
           },
         },
         responses: {
-          200: { description: 'Refund created' },
+          200: { description: 'Refund created or replayed' },
+          400: { description: 'Invalid amount or missing idempotency key' },
+          409: { description: 'Conflict, insufficient balance, or reconciliation required' },
+          502: { description: 'Unknown provider outcome; reserved amount retained' },
           404: { description: 'Payment or adapter not found' },
         },
       },

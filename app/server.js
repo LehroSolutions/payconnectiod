@@ -1,6 +1,7 @@
+import { writeJsonAtomic } from '../src/persistence.js';
 import { createServer } from 'node:http';
 import { randomUUID } from 'node:crypto';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { cleanupExpiredIdempotency } from '../src/idempotency.js';
@@ -57,6 +58,7 @@ function normalizeLedgerEntry(entry) {
     refunds: Array.isArray(entry.refunds)
       ? entry.refunds.map((refund) => ({
           id: String(refund.id ?? randomUUID()),
+          idempotencyKey: refund.idempotencyKey ?? null,
           createdAt: String(refund.createdAt ?? nowIso()),
           amountMinor: Number(refund.amountMinor ?? 0),
           providerRef: refund.providerRef ? String(refund.providerRef) : null,
@@ -170,6 +172,7 @@ function normalizeIdempotencyRecord(entry, ttlHours) {
   return {
     key: String(entry.key ?? ''),
     payloadHash: String(entry.payloadHash ?? ''),
+    paymentId: entry.paymentId ?? null,
     status: String(entry.status ?? 'reserved'),
     result: entry.result ?? null,
     createdAt: createdAt.toISOString(),
@@ -178,13 +181,13 @@ function normalizeIdempotencyRecord(entry, ttlHours) {
   };
 }
 
-function defaultState(config) {
+async function defaultState(config) {
   return {
     users: [
       {
         id: 'u-admin',
         username: config.appUser,
-        passwordHash: hashPassword(config.appPass),
+        passwordHash: await hashPassword(config.appPass),
         role: config.appRole,
       },
     ],
@@ -214,19 +217,21 @@ function defaultState(config) {
   };
 }
 
-function normalizeState(rawState, config) {
-  const fallback = defaultState(config);
+async function normalizeState(rawState, config) {
+  const fallback = await defaultState(config);
   const source = rawState && typeof rawState === 'object' ? rawState : {};
   const users =
     Array.isArray(source.users) && source.users.length > 0 ? source.users : fallback.users;
 
   const normalized = {
-    users: users.map((user, index) => ({
-      id: String(user.id ?? `u-${index + 1}`),
-      username: String(user.username ?? config.appUser),
-      passwordHash: String(user.passwordHash ?? hashPassword(config.appPass)),
-      role: String(user.role ?? 'viewer'),
-    })),
+    users: await Promise.all(
+      users.map(async (user, index) => ({
+        id: String(user.id ?? `u-${index + 1}`),
+        username: String(user.username ?? config.appUser),
+        passwordHash: String(user.passwordHash ?? (await hashPassword(config.appPass))),
+        role: String(user.role ?? 'viewer'),
+      })),
+    ),
     auth: {
       accessTokens: Array.isArray(source.auth?.accessTokens) ? source.auth.accessTokens : [],
       refreshTokens: Array.isArray(source.auth?.refreshTokens) ? source.auth.refreshTokens : [],
@@ -283,9 +288,13 @@ async function ensureDirectory(pathValue) {
 async function loadJsonState(config) {
   try {
     const raw = await readFile(config.dataFilePath, 'utf8');
-    return normalizeState(JSON.parse(raw), config);
-  } catch {
-    return normalizeState(defaultState(config), config);
+    return await normalizeState(JSON.parse(raw), config);
+  } catch (error) {
+    if (error.code !== 'ENOENT')
+      throw new Error('Cannot read payment state; restore a verified backup before starting.', {
+        cause: error,
+      });
+    return await normalizeState(await defaultState(config), config);
   }
 }
 
@@ -309,7 +318,7 @@ async function loadState(config) {
 
     if (row?.payload) {
       return {
-        state: normalizeState(JSON.parse(row.payload), config),
+        state: await normalizeState(JSON.parse(row.payload), config),
         storageBackend: 'sqlite',
         sqliteDb: db,
       };
@@ -319,7 +328,8 @@ async function loadState(config) {
       'INSERT INTO state (id, payload, updatedAt) VALUES (1, ?, ?) ON CONFLICT(id) DO UPDATE SET payload = excluded.payload, updatedAt = excluded.updatedAt',
     ).run(JSON.stringify(jsonState), nowIso());
     return { state: jsonState, storageBackend: 'sqlite', sqliteDb: db };
-  } catch {
+  } catch (error) {
+    if (!['ERR_UNKNOWN_BUILTIN_MODULE', 'ERR_MODULE_NOT_FOUND'].includes(error.code)) throw error;
     return { state: jsonState, storageBackend: 'json-file', sqliteDb: null };
   }
 }
@@ -336,7 +346,7 @@ async function saveState(runtime) {
   }
 
   await ensureDirectory(runtime.config.dataFilePath);
-  await writeFile(runtime.config.dataFilePath, JSON.stringify(runtime.state, null, 2));
+  await writeJsonAtomic(runtime.config.dataFilePath, runtime.state);
 }
 
 function requestIdFromHeader(request) {
@@ -446,6 +456,7 @@ export async function createAppServer(options = {}) {
     adapterRegistry: createAdapterRegistry(config),
     mcpSseSessions: new Map(),
   };
+  runtime.persist = () => saveState(runtime);
   runtime.deliveryQueue = createWebhookDeliveryQueue({
     runtime,
     saveState,
@@ -476,8 +487,12 @@ export async function startServer(options = {}) {
   const host = options.host ?? app.config.host;
   const requestedPort = options.port ?? app.config.port;
 
-  await new Promise((resolveListen) => {
-    app.server.listen(requestedPort, host, resolveListen);
+  await new Promise((resolveListen, rejectListen) => {
+    app.server.once('error', rejectListen);
+    app.server.listen(requestedPort, host, () => {
+      app.server.removeListener('error', rejectListen);
+      resolveListen();
+    });
   });
 
   const address = app.server.address();

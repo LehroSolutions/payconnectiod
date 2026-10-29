@@ -1,5 +1,7 @@
-import { createHash, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+import { createHash, randomBytes, scrypt, timingSafeEqual } from 'node:crypto';
+import { promisify } from 'node:util';
 
+const scryptAsync = promisify(scrypt);
 const SCRYPT_PREFIX = 'scrypt';
 const KEY_LENGTH = 64;
 
@@ -18,21 +20,26 @@ function legacyHashPassword(legacySalt, password) {
   return createHash('sha256').update(`${legacySalt}:${password}`).digest('hex');
 }
 
-function hashPassword(password, salt = randomBytes(16).toString('hex')) {
-  const digest = scryptSync(String(password), salt, KEY_LENGTH).toString('hex');
+async function deriveScryptHex(password, salt) {
+  const derived = await scryptAsync(String(password), salt, KEY_LENGTH);
+  return Buffer.from(derived).toString('hex');
+}
+
+async function hashPassword(password, salt = randomBytes(16).toString('hex')) {
+  const digest = await deriveScryptHex(password, salt);
   return `${SCRYPT_PREFIX}$${salt}$${digest}`;
 }
 
-function verifyScryptHash(storedHash, password) {
+async function verifyScryptHash(storedHash, password) {
   const parts = String(storedHash).split('$');
   if (parts.length !== 3 || parts[0] !== SCRYPT_PREFIX) return false;
 
   const [, salt, digest] = parts;
-  const candidate = scryptSync(String(password), salt, KEY_LENGTH).toString('hex');
+  const candidate = await deriveScryptHex(password, salt);
   return secureEqual(candidate, digest);
 }
 
-function verifyPassword(storedHash, password, options = {}) {
+async function verifyPassword(storedHash, password, options = {}) {
   const value = String(storedHash ?? '');
   const legacySalt = String(options.legacySalt ?? '');
 
@@ -42,7 +49,7 @@ function verifyPassword(storedHash, password, options = {}) {
 
   if (value.startsWith(`${SCRYPT_PREFIX}$`)) {
     return {
-      ok: verifyScryptHash(value, password),
+      ok: await verifyScryptHash(value, password),
       nextHash: null,
       migrated: false,
     };
@@ -52,9 +59,13 @@ function verifyPassword(storedHash, password, options = {}) {
   const ok = secureEqual(value, legacyCandidate);
   return {
     ok,
-    nextHash: ok ? hashPassword(password) : null,
+    nextHash: ok ? await hashPassword(password) : null,
     migrated: ok,
   };
 }
 
-export { hashPassword, verifyPassword };
+async function burnVerificationTime(password) {
+  await deriveScryptHex(password, 'payconnectoid-timing-equalizer');
+}
+
+export { burnVerificationTime, hashPassword, verifyPassword };

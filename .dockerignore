@@ -1,0 +1,12 @@
+node_modules
+.git
+.env
+.env.*
+!.env.example
+**/data.json
+**/*.json.*.tmp
+**/*.sqlite
+**/*.sqlite-*
+**/*.jsonl
+**/*.log
+.production-upgrade

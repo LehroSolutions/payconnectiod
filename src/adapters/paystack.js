@@ -32,6 +32,7 @@ class PaystackAdapter extends PaymentAdapter {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify(body),
+      signal: AbortSignal.timeout(15000),
     });
 
     const payload = await response.json();
@@ -45,6 +46,7 @@ class PaystackAdapter extends PaymentAdapter {
     this.assertConfigured();
     const response = await fetch(`${this.baseUrl}${path}`, {
       method: 'GET',
+      signal: AbortSignal.timeout(15000),
       headers: {
         Authorization: `Bearer ${this.secretKey}`,
         'Content-Type': 'application/json',

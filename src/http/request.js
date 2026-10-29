@@ -30,7 +30,11 @@ function parseJsonText(text) {
 
 async function readJsonBody(request, maxBytes) {
   const raw = await readRawBody(request, maxBytes);
-  return parseJsonText(raw.toString('utf8'));
+  const payload = parseJsonText(raw.toString('utf8'));
+  if (!payload || typeof payload !== 'object' || Array.isArray(payload)) {
+    throw new HttpError(400, 'INVALID_JSON_OBJECT', 'Request body must be a JSON object.');
+  }
+  return payload;
 }
 
 function appendVary(response, value) {

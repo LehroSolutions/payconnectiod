@@ -239,3 +239,7 @@ bun run docs:check
 
 Do not use `npm ci`; Bun is the canonical install path. Run `bun install` after dependency changes and commit the resulting `bun.lock`.
 <!-- bun-toolchain:end -->
+
+## Production operation
+
+See [PRODUCTION.md](PRODUCTION.md) for verified release checks, configuration, data handling, and recovery.

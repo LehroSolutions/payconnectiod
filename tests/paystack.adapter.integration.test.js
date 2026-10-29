@@ -120,7 +120,7 @@ test('paystack adapter uses HTTP initialize and verify endpoints', async () => {
       {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amountMinor: 2500 }),
+        body: JSON.stringify({ amountMinor: 2500, idempotencyKey: 'refund-first' }),
       },
     );
     assert.equal(refundResponse.status, 200);
@@ -147,7 +147,7 @@ test('paystack adapter uses HTTP initialize and verify endpoints', async () => {
       {
         method: 'POST',
         headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amountMinor: 3000 }),
+        body: JSON.stringify({ amountMinor: 3000, idempotencyKey: 'refund-overflow' }),
       },
     );
     assert.equal(overRefundResponse.status, 409);

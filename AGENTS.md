@@ -6,7 +6,7 @@ Operating contract for AI coding agents, with human-in-the-loop checkpoints.
 
 PayConnectoid is an open-core payment orchestration server: idempotent
 payments, provider adapters (PayStack et al.), webhook delivery queueing,
-analytics, and MCP access. Node >=24 ESM, runs on **bun**. License:
+analytics, and MCP access. Node >=24 ESM runtime; **bun** installs dependencies. License:
 Apache-2.0 (`COMMERCIAL.md` governs commercial terms — keep them separate).
 
 ## Command Reference
@@ -30,8 +30,8 @@ integration) under real Node. Must pass before you report success.
 **Runtime note:** tests MUST run under real Node (`npm test`), never
 `bun test` — Bun's `node:http` polyfill corrupts mid-stream error responses
 (it sends a bare `\r\n` instead of a 413 envelope), producing false
-failures in HTTP integration tests. Bun remains the runtime for the server
-itself and for prettier. Integration tests use in-memory
+failures in HTTP integration tests. The production server and MCP entrypoint
+also use real Node; Bun remains the dependency manager. Integration tests use in-memory
 providers — they must not require network access or real API keys.
 
 ## Codebase Map

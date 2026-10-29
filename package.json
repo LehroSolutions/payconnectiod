@@ -6,11 +6,11 @@
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/LehroSolutions/payconnectiod.git"
+    "url": "git+https://github.com/LehroSolutions/payconnectoid.git"
   },
-  "homepage": "https://github.com/LehroSolutions/payconnectiod#readme",
+  "homepage": "https://github.com/LehroSolutions/payconnectoid#readme",
   "bugs": {
-    "url": "https://github.com/LehroSolutions/payconnectiod/issues"
+    "url": "https://github.com/LehroSolutions/payconnectoid/issues"
   },
   "type": "module",
   "main": "src/index.js",
@@ -46,9 +46,9 @@
   ],
   "scripts": {
     "test": "node --test tests/*.test.js",
-    "start": "bun app/server.js",
+    "start": "node app/server.js",
     "sdk:generate": "bun scripts/generate-sdks.js",
-    "mcp:start": "bun src/mcp/server.js",
+    "mcp:start": "node src/mcp/server.js",
     "package:manager": "bun --version",
     "install:js": "bun install",
     "docs:build": "node scripts/docs.mjs build",

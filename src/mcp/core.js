@@ -115,9 +115,10 @@ const toolDefinitions = [
     description: 'Issue a refund for a payment through its provider adapter.',
     inputSchema: {
       type: 'object',
-      required: ['paymentId'],
+      required: ['paymentId', 'idempotencyKey'],
       properties: {
         paymentId: { type: 'string' },
+        idempotencyKey: { type: 'string', minLength: 1, maxLength: 200 },
         amountMinor: { type: 'integer' },
       },
     },
@@ -332,7 +333,7 @@ async function handleToolCall(client, name, args = {}) {
         'POST',
         `/api/v2/payments/${encodeURIComponent(args.paymentId)}/refund`,
         {
-          body: args.amountMinor ? { amountMinor: args.amountMinor } : {},
+          body: { amountMinor: args.amountMinor, idempotencyKey: args.idempotencyKey },
         },
       );
       return response.json();
